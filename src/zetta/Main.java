@@ -62,6 +62,6 @@ public class Main extends JavaPlugin implements Listener {
 	}
     @Override
     public void onDisable() {
-    	getLogger().info("CombatTag++ has been disabled!");
+    	getLogger().info("guerresD'antan has been disabled!");
     }
 }
