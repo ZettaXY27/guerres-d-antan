@@ -1,5 +1,10 @@
 version: 0.1
-name: guerresDantan
+name: CombatTagPlusPlus
 main: zetta.Main
-authors: [ZettaX, Inivican]
-description: why
+author: ZettaX
+description: CombatTaggingForFlansMod
+permissions:
+    combatplusplus.Tagged:
+        description: Tagged by combattagplusplus
+    cbtplusplus.immune:
+        description: Provides immunity from tagging/being tagged
