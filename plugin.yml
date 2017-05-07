@@ -1,7 +1,7 @@
 version: 0.1
 name: CombatTagPlusPlus
 main: zetta.Main
-author: ZettaX
+author: ZettaX, Inivican
 description: CombatTaggingForFlansMod
 permissions:
     combatplusplus.Tagged:

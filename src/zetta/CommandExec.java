@@ -22,6 +22,11 @@ public class CommandExec implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
 		// TODO yeah, actually add the command
+		
+		
+		
+		
+		
 		return false;
 	}
 
