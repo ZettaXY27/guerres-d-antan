@@ -25,7 +25,11 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
-
+/**
+ * 
+ * @author sherendeen, ZettaX
+ *
+ */
 @SuppressWarnings("unused")
 public class Main extends JavaPlugin implements Listener {
 	@Override
