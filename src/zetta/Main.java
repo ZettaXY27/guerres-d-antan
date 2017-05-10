@@ -39,6 +39,7 @@ public class Main extends JavaPlugin implements Listener {
 		getsecondConfig();
 		//Adding commands, it has to be defined in the CommandExec class for it to work
 		this.getCommand("test").setExecutor(new CommandExec(this));
+		getLogger().info("papa, you might be looking at console rn, so I'd like to wish you a good day");
 	}
 	private  FileConfiguration secondConfig = null;
 	private File secondConfigFile = null;
@@ -68,8 +69,9 @@ public class Main extends JavaPlugin implements Listener {
 	        getLogger().log(Level.SEVERE, "Could not save config to " + secondConfigFile, ex);
 	    }
 	}
+	//A quick little message. It's not necessary but eh why not
     @Override
     public void onDisable() {
-    	getLogger().info("guerresD'antan has been disabled!");
+    	getLogger().info("guerresD'antan has been disabled! HOW COULD YOU!");
     }
 }
