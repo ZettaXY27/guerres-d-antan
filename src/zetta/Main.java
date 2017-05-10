@@ -44,7 +44,7 @@ public class Main extends JavaPlugin implements Listener {
 	private  FileConfiguration secondConfig = null;
 	private File secondConfigFile = null;
 	
-	//Reloads the second config file, if it's non existent it will attempt to create one
+	//Reloads the secondary config file, if it's non existent it will attempt to create one
 	public void reloadsecondConfig() {
 	    if (secondConfigFile == null) {
 	    	secondConfigFile = new File(getDataFolder(), "secondConfig.yml");
