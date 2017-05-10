@@ -1,10 +1,9 @@
 version: 0.1
-name: CombatTagPlusPlus
+name: guerresD_Antan
 main: zetta.Main
-author: ZettaX, Inivican
-description: CombatTaggingForFlansMod
-permissions:
-    combatplusplus.Tagged:
-        description: Tagged by combattagplusplus
-    cbtplusplus.immune:
-        description: Provides immunity from tagging/being tagged
+authors: [ZettaX, Inivican]
+description: For Project Olympic
+commands:
+  test:
+    usage: Well, you probably fucked up. It is not likely for this to stop working anyways
+    description: Testing purposes

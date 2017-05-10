@@ -37,23 +37,27 @@ public class Main extends JavaPlugin implements Listener {
 	public void onEnable() {
 		getServer().getPluginManager().registerEvents(this, this);	
 		getsecondConfig();
-		this.getCommand("untag").setExecutor(new CommandExec(this));
+		//Adding commands, it has to be defined in the CommandExec class for it to work
+		this.getCommand("test").setExecutor(new CommandExec(this));
 	}
 	private  FileConfiguration secondConfig = null;
 	private File secondConfigFile = null;
 	
+	//Reloads the second config file, if it's non existent it will attempt to create one
 	public void reloadsecondConfig() {
 	    if (secondConfigFile == null) {
 	    	secondConfigFile = new File(getDataFolder(), "secondConfig.yml");
 	    }
 	    secondConfig = YamlConfiguration.loadConfiguration(secondConfigFile);
 	}
+	//Returns the secondary config file
 	public FileConfiguration getsecondConfig() {
 	    if (secondConfig == null) {
 	    	reloadsecondConfig();
 	    }
 	    return secondConfig;
 	}
+	//Saves the secondary config file
 	public void savesecondConfig() {
 	    if (secondConfig == null || secondConfigFile == null) {
 	        return;
