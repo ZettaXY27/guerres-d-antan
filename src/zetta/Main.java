@@ -26,7 +26,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
 /**
- * @date   4 June 2017 @ 5:09PM
+ * 
  * @author sherendeen, ZettaX
  *
  */
@@ -77,14 +77,13 @@ public class Main extends JavaPlugin{
 		try{
 			chunkSavesFile.save(chunkSavesFileConfiguration);
 		 
+		}catch(Exception e){
+		e.printStackTrace();
 		}
-		catch(Exception e){
-			e.printStackTrace();
 		}
-	}
 	//A quick little message. It's not necessary but eh why not
     @Override
     public void onDisable() {
     	getLogger().info("guerresD'antan has been disabled! HOW COULD YOU!");
     }
-}
+    }

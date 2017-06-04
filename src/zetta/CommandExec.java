@@ -2,6 +2,9 @@
 
 package zetta;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -39,24 +42,35 @@ public class CommandExec implements CommandExecutor {
 		  else {
 			  if(arg3[0].equalsIgnoreCase("claim")) {
 				  String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").getString(arg0.getName());
+				  List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(playerFaction).getStringList("Chunks");
 				  if(plugin.getSecondConfig().getConfigurationSection("Citizens").contains(player.getName())) {
-					  //TODO: Add faction check for player and store the chunk claimed for X faction
+					  //TODO: Add faction check for player
 					  int playerChunkX = player.getLocation().getChunk().getX();
 					  int playerChunkZ = player.getLocation().getChunk().getZ();
 					  if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).contains("Chunks") == true) {
-						  plugin.chunkSavesFile.getConfigurationSection(playerFaction).getConfigurationSection("Chunks").createSection(playerChunkX + " " + playerChunkZ);
-						  ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
-						  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + " You just claimed " + ChatColor.DARK_AQUA + playerChunkX + " " + playerChunkZ);
+						  if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).getStringList("Chunks").contains(playerChunkX + " " + playerChunkZ) == false){
+							  chunkList.add(playerChunkX + " " + playerChunkZ);
+							  plugin.chunkSavesFile.getConfigurationSection(playerFaction).set("Chunks", chunkList);
+							  ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
+							  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + " You just claimed " + ChatColor.DARK_AQUA + playerChunkX + " " + playerChunkZ);
+							  return true;  
+						  }
+						  else {
+							  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + "Your faction already owns this land!");
+							  return false;
+						  }
 					  }
 					  else {
-						 plugin.chunkSavesFile.getConfigurationSection(playerFaction).createSection("Chunks");
-						 plugin.chunkSavesFile.getConfigurationSection(playerFaction).getConfigurationSection("Chunks").createSection(playerChunkX + " " + playerChunkZ);
-						 ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
-						  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + " You just claimed " + ChatColor.DARK_AQUA + playerChunkX + " " + playerChunkZ);
+//						 plugin.chunkSavesFile.getConfigurationSection(playerFaction).createSection("Chunks");
+//						 plugin.chunkSavesFile.getConfigurationSection(playerFaction).getConfigurationSection("Chunks").createSection(playerChunkX + " " + playerChunkZ);
+//						 ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
+//						 player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + "There was an error! Oops! We'll try to fix it, try again :)");
+//						 return true;
 					  }
 				  }
 				  else {
 					  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + "You are not a citizen of any country!");
+					  return false;
 				  }
 				  //////////////
 			  }
@@ -92,11 +106,29 @@ public class CommandExec implements CommandExecutor {
 				  }
 				  
 			  }
+			  else if (arg3[0].equalsIgnoreCase("invite")){
+				@SuppressWarnings("deprecation")
+				Player invitedPlayer = (Bukkit.getServer().getPlayer(arg3[1]));
+				String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").getString(arg0.getName());
+				  if(arg3.length == 0) {
+					  arg0.sendMessage("Not enough arguments");
+					  return false;
+				  }
+				  else {
+					  invitedPlayer.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + "You have been invited to " + playerFaction + "!");
+					  return true;
+				  }
+			  }
+			  else if (arg3[0].equalsIgnoreCase("claimlist")) {
+				  String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").getString(arg0.getName());
+				  List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(playerFaction).getStringList("Chunks.Chunks");
+				  for (String s : chunkList ) player.sendMessage(s);
+			  }
+			  }
+		}
 			  else {
 				arg0.sendMessage("That's invalid you inbred fuck!");
 				}
-		  }	
-		}
 		return false;
 	}
 
