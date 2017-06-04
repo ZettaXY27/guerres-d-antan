@@ -15,22 +15,31 @@ public class ChunkManagement {
 	public int currentChunkZ;
 	public String uniqueIdentifierOfOwner;
 	public static String playerName;
-	 public static void saveChunkSavesFileConfiguration(FileConfiguration chunkSavesFile, File chunkSavesFileConfiguration) {
+	public static void saveChunkSavesFileConfiguration(FileConfiguration chunkSavesFile, File chunkSavesFileConfiguration) {
 		 try {
-		 chunkSavesFile.save(chunkSavesFileConfiguration);
-		 } catch (IOException e) {
-		 e.printStackTrace();
+			 chunkSavesFile.save(chunkSavesFileConfiguration);
+		 } 
+		 catch (IOException e) {
+			 e.printStackTrace();
 		 }
-		 }
-		public void addToChunkSave(String _playerOwner, String factionName){
-			plugin.chunkSavesFile.createSection(factionName);
-			plugin.chunkSavesFile.getConfigurationSection(factionName).set("Owner", _playerOwner);
-			saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
-			
-		}
-		public static void addToChunkSave(String factionName){
-			plugin.chunkSavesFile.createSection(factionName);
-			plugin.chunkSavesFile.getConfigurationSection(factionName).set("Owner", playerName);
-			saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
-		}
+	}
+	/**
+	 * 
+	 * @param _playerOwner manually settable name of the faction owner. This can be left out.
+	 * @param factionName the name of the faction of the player
+	 */
+	public void addToChunkSave(String _playerOwner, String factionName){
+		plugin.chunkSavesFile.createSection(factionName);
+		plugin.chunkSavesFile.getConfigurationSection(factionName).set("Owner", _playerOwner);
+		saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);		
+	}
+	/**
+	 * 
+	 * @param factionName the name of the faction of the player
+	 */
+	public static void addToChunkSave(String factionName){
+		plugin.chunkSavesFile.createSection(factionName);
+		plugin.chunkSavesFile.getConfigurationSection(factionName).set("Owner", playerName);
+		saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
+	}
 }
