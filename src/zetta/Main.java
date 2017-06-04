@@ -1,77 +1,87 @@
+
 package zetta;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.UUID;
-import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.EnderPearl;
-/*import org.bukkit.entity.Creeper;*/
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.LargeFireball;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.SmallFireball;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
-/**
- * 
- * @author sherendeen, ZettaX
- *
- */
 @SuppressWarnings("unused")
-public class Main extends JavaPlugin implements Listener {
+public class CommandExec implements CommandExecutor {
+	Main plugin;
+
+
+	public CommandExec(Main plugin) {
+		this.plugin = plugin;
+	}
+
+    //Actual command, this has to be registered in the main class
 	@Override
-	//debug messages and event registering
-	public void onEnable() {
-		getServer().getPluginManager().registerEvents(this, this);	
-		getsecondConfig();
-		//Adding commands, it has to be defined in the CommandExec class for it to work
-		this.getCommand("test").setExecutor(new CommandExec(this));
-		getLogger().info("papa, you might be looking at console rn, so I'd like to wish you a good day");
+	public boolean onCommand(CommandSender arg0, Command arg1, String arg2, String[] arg3) {
+		Player player = (Player) arg0;
+		UUID ID = player.getUniqueId();		
+        ChunkManagement.playerName = arg0.getName();
+		if(arg1.getName().equalsIgnoreCase("test")) {
+			arg0.sendMessage(ChatColor.AQUA + "Yeah, it's working, what a miracle. Now, get your head out of your ass");
+			return true;
+		}
+		else if(arg1.getName().equalsIgnoreCase("gda")){
+		  if (arg3.length == 0) { 
+				arg0.sendMessage("Usage: /gda (subcommand)");
+		  }
+		  else {
+			  if(arg3[0].equalsIgnoreCase("claim")) {
+				  if(plugin.chunkSavesFile.getConfigurationSection("Citizens").contains(player.getName()) == true) {
+					  //TODO: Add faction check for player and store the chunk claimed for X faction
+				  }
+				  int playerChunkX = player.getLocation().getChunk().getX();
+				  int playerChunkZ = player.getLocation().getChunk().getZ();
+				  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + " You just claimed " + ChatColor.DARK_AQUA + playerChunkX + " " + playerChunkZ);
+				  //////////////
+			  }
+			  else if (arg3[0].equalsIgnoreCase("create")){
+				  if(arg3.length == 0) {
+					  arg0.sendMessage("Not enough arguments");
+					  return false;
+				  }
+				  else {
+					 String Name = arg3[1];
+					 if(plugin.getSecondConfig().contains(Name)) {
+						 player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + "There is a country called " + Name + " already!");
+						 return false;
+					 }
+					 else {
+						 if(plugin.getSecondConfig().contains("Citizens") == false) {
+							 plugin.getSecondConfig().createSection("Citizens");
+						 }
+						 else if(plugin.getSecondConfig().getConfigurationSection("Citizens").contains(player.getName())) {
+							player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + "You are already in a faction!");
+							return false;
+						 }
+						 plugin.getSecondConfig().createSection(Name);
+						 plugin.getSecondConfig().getConfigurationSection(Name).set("Owner", player.getName());
+						 plugin.getSecondConfig().getConfigurationSection("Citizens").set(player.getName(), Name);
+						 plugin.saveSecondConfig();
+						 player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + "You established a new country called " + ChatColor.GOLD + Name);
+						 return true; 
+					 }
+				
+				  }
+				  
+			  }
+			  else {
+				arg0.sendMessage("That's invalid you inbred fuck!");
+				}
+		  }	
+		}
+		return false;
 	}
-	private  FileConfiguration secondConfig = null;
-	private File secondConfigFile = null;
-	
-	//Reloads the secondary config file, if it's non existent it will attempt to create one
-	public void reloadsecondConfig() {
-	    if (secondConfigFile == null) {
-	    	secondConfigFile = new File(getDataFolder(), "secondConfig.yml");
-	    }
-	    secondConfig = YamlConfiguration.loadConfiguration(secondConfigFile);
-	}
-	//Returns the secondary config file
-	public FileConfiguration getsecondConfig() {
-	    if (secondConfig == null) {
-	    	reloadsecondConfig();
-	    }
-	    return secondConfig;
-	}
-	//Saves the secondary config file
-	public void savesecondConfig() {
-	    if (secondConfig == null || secondConfigFile == null) {
-	        return;
-	    }
-	    try {
-	        getsecondConfig().save(secondConfigFile);
-	    } catch (IOException ex) {
-	        getLogger().log(Level.SEVERE, "Could not save config to " + secondConfigFile, ex);
-	    }
-	}
-	//A quick little message. It's not necessary but eh why not
-    @Override
-    public void onDisable() {
-    	getLogger().info("guerresD'antan has been disabled! HOW COULD YOU!");
-    }
+
+
 }
