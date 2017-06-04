@@ -87,4 +87,3 @@ public class Main extends JavaPlugin{
     	getLogger().info("guerresD'antan has been disabled! HOW COULD YOU!");
     }
     }
-
