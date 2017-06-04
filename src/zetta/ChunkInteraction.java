@@ -27,11 +27,29 @@ public class ChunkInteraction implements Listener {
 		int playerChunkX = event.getPlayer().getLocation().getChunk().getX();
 		int playerChunkZ = event.getPlayer().getLocation().getChunk().getZ();
 		
-		Material materialThatIsInHand = player.getItemInHand().getType();
+		//Unnecessary
+		//Material materialThatIsInHand = player.getItemInHand().getType();
 		
-		
+		//If a player LEFT CLICKS on a block...
 		if(event.getAction() == Action.LEFT_CLICK_BLOCK)
 			if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).contains("Chunks") == true) {
+				//Prevents a player from breaking blocks within a chunk that does not belong to their faction
+				if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).getStringList("Chunks").contains(playerChunkX +" " + playerChunkZ) == false)
+				{
+				  event.setCancelled(true);
+				  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + " You do not own   " + ChatColor.DARK_AQUA + playerChunkX + ", " + playerChunkZ);
+				  
+				}
+				else {
+				 
+				  
+			}
+		}
+		
+		//If a player RIGHT CLICKS on a block...
+		if(event.getAction() == Action.RIGHT_CLICK_BLOCK){
+			if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).contains("Chunks") == true) {
+				//Prevents a player from placing blocks within a chunk that does not belong to their faction
 				if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).getStringList("Chunks").contains(playerChunkX +" " + playerChunkZ) == false)
 				{
 				  event.setCancelled(true);
