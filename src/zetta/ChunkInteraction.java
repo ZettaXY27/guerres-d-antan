@@ -59,11 +59,11 @@ public class ChunkInteraction implements Listener {
 				else {
 				 
 				  
+				}
 			}
+		
+		
 		}
-		
-		
+	
 	}
-	
-	
 }
