@@ -10,11 +10,23 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+/**
+ * 
+ * @author Inivican
+ * This class is to be used for all cases of player interaction with chunks.
+ * 
+ * KNOWN ISSUES:
+ * We have no means of detecting explosive damage on the land as of yet.
+ */
 public class ChunkInteraction implements Listener {
 	public Main plugin;
 	
 	
 	@EventHandler
+	/**
+	 * 
+	 * @param event the event of a player interacting
+	 */
 	public void onPlayerInteract(PlayerInteractEvent event){
 		Player player = event.getPlayer();
 
