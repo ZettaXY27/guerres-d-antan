@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 @SuppressWarnings("unused")
 public class CommandExec implements CommandExecutor {
 	Main plugin;
-
+    ChunkManagement chunkManagement;
 
 	public CommandExec(Main plugin) {
 		this.plugin = plugin;
@@ -38,12 +38,26 @@ public class CommandExec implements CommandExecutor {
 		  }
 		  else {
 			  if(arg3[0].equalsIgnoreCase("claim")) {
-				  if(plugin.chunkSavesFile.getConfigurationSection("Citizens").contains(player.getName()) == true) {
+				  String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").getString(arg0.getName());
+				  if(plugin.getSecondConfig().getConfigurationSection("Citizens").contains(player.getName())) {
 					  //TODO: Add faction check for player and store the chunk claimed for X faction
+					  int playerChunkX = player.getLocation().getChunk().getX();
+					  int playerChunkZ = player.getLocation().getChunk().getZ();
+					  if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).contains("Chunks") == true) {
+						  plugin.chunkSavesFile.getConfigurationSection(playerFaction).getConfigurationSection("Chunks").createSection(playerChunkX + " " + playerChunkZ);
+						  ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
+						  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + " You just claimed " + ChatColor.DARK_AQUA + playerChunkX + " " + playerChunkZ);
+					  }
+					  else {
+						 plugin.chunkSavesFile.getConfigurationSection(playerFaction).createSection("Chunks");
+						 plugin.chunkSavesFile.getConfigurationSection(playerFaction).getConfigurationSection("Chunks").createSection(playerChunkX + " " + playerChunkZ);
+						 ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
+						  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + " You just claimed " + ChatColor.DARK_AQUA + playerChunkX + " " + playerChunkZ);
+					  }
 				  }
-				  int playerChunkX = player.getLocation().getChunk().getX();
-				  int playerChunkZ = player.getLocation().getChunk().getZ();
-				  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + " You just claimed " + ChatColor.DARK_AQUA + playerChunkX + " " + playerChunkZ);
+				  else {
+					  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + "You are not a citizen of any country!");
+				  }
 				  //////////////
 			  }
 			  else if (arg3[0].equalsIgnoreCase("create")){
@@ -68,6 +82,8 @@ public class CommandExec implements CommandExecutor {
 						 plugin.getSecondConfig().createSection(Name);
 						 plugin.getSecondConfig().getConfigurationSection(Name).set("Owner", player.getName());
 						 plugin.getSecondConfig().getConfigurationSection("Citizens").set(player.getName(), Name);
+						 plugin.chunkSavesFile.createSection(Name).createSection("Chunks");
+						 ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
 						 plugin.saveSecondConfig();
 						 player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + "You established a new country called " + ChatColor.GOLD + Name);
 						 return true; 
