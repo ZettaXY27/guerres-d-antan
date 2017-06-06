@@ -151,13 +151,19 @@ public class CommandExec implements CommandExecutor {
 					  return false;
 				  }
 				  else {
-					  if(inviteStore.containsKey(player.getName())) {
+					  if(inviteStore.containsKey(player.getName()) == true) {
 						  String factionPlayerHasBeenInvitedTo = inviteStore.get(player.getName());
+						  Bukkit.broadcastMessage("weird debug meme " + inviteStore.get(player.getName()));
 						  plugin.getSecondConfig().getConfigurationSection("Citizens").set(player.getName(), factionPlayerHasBeenInvitedTo);
 						  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + "You have joined " + factionPlayerHasBeenInvitedTo);
+						  inviteStore.remove(player.getName());
+						  return true;
 
 					  }
-					  return true;
+					  else {
+						  return false;
+					  }
+						  
 				  }
 			  }
 			  else if (arg3[0].equalsIgnoreCase("cl")) {
