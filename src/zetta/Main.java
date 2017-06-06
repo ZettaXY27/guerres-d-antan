@@ -50,6 +50,18 @@ public class Main extends JavaPlugin{
 	    }
 	    return secondConfig;
 	}
+	public FileConfiguration getChunkSavesFile() {
+	    if (chunkSavesFile == null) {
+	    	reloadChunkSavesFile();
+	    }
+	    return chunkSavesFile;
+	}
+	public void reloadChunkSavesFile() {
+	    if (chunkSavesFileConfiguration == null) {
+	    	chunkSavesFileConfiguration = new File(getDataFolder(), "chunk_saves.yml");
+	    }
+	    chunkSavesFile = YamlConfiguration.loadConfiguration(chunkSavesFileConfiguration);
+	}
 	//Saves the secondary config file
 	public void saveSecondConfig() {
 	    if (secondConfig == null || secondConfigFile == null) {
@@ -64,6 +76,7 @@ public class Main extends JavaPlugin{
 	@Override
 	//debug messages and event registering
 	public void onEnable() {
+		new ChunkInteraction(this);
 		chunkSavesFileConfiguration = new File(getDataFolder(), "chunk_saves.yml"); // creates the file under a folder called guerresD_antan
 		chunkSavesFile = YamlConfiguration.loadConfiguration(chunkSavesFileConfiguration);
 		saveChunkSavesFile();

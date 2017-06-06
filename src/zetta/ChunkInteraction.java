@@ -4,78 +4,72 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 /**
  * 
  * @author Inivican
+ * Revised by ZettaX
  * This class is to be used for all cases of player interaction with chunks.
  * 
  * KNOWN ISSUES:
  * We have no means of detecting explosive damage on the land as of yet.
  */
+@SuppressWarnings("unused")
 public class ChunkInteraction implements Listener {
-	public Main plugin;
-	
-	
-	@EventHandler
+	Main chunkSavesRetrieval;
+	public ChunkInteraction(Main main) {
+		main.getServer().getPluginManager().registerEvents(this, main);
+		chunkSavesRetrieval = main;
+	}
+
+
 	/**
 	 * 
-	 * @param event the event of a player interacting
+	 * @param event the event of a block being broken
 	 */
-	public void onPlayerInteract(PlayerInteractEvent event){
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
-
-		
-		//Define player faction
-		String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").getString(event.getPlayer().getName());
-		
-		
-		List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(playerFaction).getStringList("Chunks");
+		Block blockBeingBroken = event.getBlock();
+		int blockChunkX = blockBeingBroken.getChunk().getX();
+		int blockChunkZ = blockBeingBroken.getChunk().getZ();
 		int playerChunkX = event.getPlayer().getLocation().getChunk().getX();
 		int playerChunkZ = event.getPlayer().getLocation().getChunk().getZ();
-		
-		//Unnecessary
-		//Material materialThatIsInHand = player.getItemInHand().getType();
-		
-		//If a player LEFT CLICKS on a block...
-		if(event.getAction() == Action.LEFT_CLICK_BLOCK)
-			if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).contains("Chunks") == true) {
-				//Prevents a player from breaking blocks within a chunk that does not belong to their faction
-				if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).getStringList("Chunks").contains(playerChunkX +" " + playerChunkZ) == false)
-				{
-				  event.setCancelled(true);
-				  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + " You do not own   " + ChatColor.DARK_AQUA + playerChunkX + ", " + playerChunkZ);
-				  
-				}
-				else {
-				 
-				  
+		String claimedChunkFactionName =  chunkSavesRetrieval.getChunkSavesFile().getConfigurationSection("ClaimedChunks").getString(blockChunkX+","+blockChunkZ);
+		String playerFaction = chunkSavesRetrieval.getSecondConfig().getConfigurationSection("Citizens").getString(player.getName());
+		try {
+			boolean chunkPertainsToPlayersFaction = claimedChunkFactionName.equals(playerFaction);
+			if(chunkPertainsToPlayersFaction == false) {
+				event.setCancelled(true);
+				player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED + "You do not have permission to edit " + blockChunkX + " " + blockChunkZ);
+				player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED + "This land is owned by " + claimedChunkFactionName);
 			}
-		}
-		
-		//If a player RIGHT CLICKS on a block...
-		if(event.getAction() == Action.RIGHT_CLICK_BLOCK){
-			if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).contains("Chunks") == true) {
-				//Prevents a player from placing blocks within a chunk that does not belong to their faction
-				if(plugin.chunkSavesFile.getConfigurationSection(playerFaction).getStringList("Chunks").contains(playerChunkX +" " + playerChunkZ) == false)
-				{
-				  event.setCancelled(true);
-				  player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + " You do not own   " + ChatColor.DARK_AQUA + playerChunkX + ", " + playerChunkZ);
-				  
-				}
-				else {
-				 
-				  
-				}
+			else{
 			}
-		
-		
+		} catch (NullPointerException npe) {
+		    // It's fine if chunkPertainsToPlayersFaction throws an NPE
 		}
-	
+		if(claimedChunkFactionName == null) {
+			event.setCancelled(false);
+		}
+		else {
+			
+		}
+			
+//		if(chunkSavesRetrieval.getChunkSavesFile().contains("ClaimedChunks")) {
+			//chunkSavesRetrieval.getChunkSavesFile().getConfigurationSection("ClaimedChunks").contains(blockChunkX+","+blockChunkZ) == true working piece of code
+//		}
+	    //  else {
+		//	player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED + "Something went wrong! :( Inform ZettaX or Inivican immediately! (Error code 00xCI001");
+		//    }
 	}
 }
