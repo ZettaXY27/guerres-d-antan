@@ -77,9 +77,6 @@ public class Main extends JavaPlugin{
 	//debug messages and event registering
 	public void onEnable() {
 		new ChunkInteraction(this);
-		chunkSavesFileConfiguration = new File(getDataFolder(), "chunk_saves.yml"); // creates the file under a folder called guerresD_antan
-		chunkSavesFile = YamlConfiguration.loadConfiguration(chunkSavesFileConfiguration);
-		saveChunkSavesFile();
 		getSecondConfig();
 		//Adding commands, it has to be defined in the CommandExec class for it to work
 		this.getCommand("test").setExecutor(new CommandExec(this));

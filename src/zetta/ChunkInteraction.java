@@ -5,6 +5,7 @@ import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -12,6 +13,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 /**
@@ -71,5 +75,49 @@ public class ChunkInteraction implements Listener {
 	    //  else {
 		//	player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED + "Something went wrong! :( Inform ZettaX or Inivican immediately! (Error code 00xCI001");
 		//    }
+	}
+	@EventHandler
+	public void onBlockPlace(BlockPlaceEvent event) {
+			Player player = event.getPlayer();
+			Block blockBeingPlaced = event.getBlock();
+			int blockChunkX = blockBeingPlaced.getChunk().getX();
+			int blockChunkZ = blockBeingPlaced.getChunk().getZ();
+			int playerChunkX = event.getPlayer().getLocation().getChunk().getX();
+			int playerChunkZ = event.getPlayer().getLocation().getChunk().getZ();
+			String claimedChunkFactionName =  chunkSavesRetrieval.getChunkSavesFile().getConfigurationSection("ClaimedChunks").getString(blockChunkX+","+blockChunkZ);
+			String playerFaction = chunkSavesRetrieval.getSecondConfig().getConfigurationSection("Citizens").getString(player.getName());
+			try {
+				boolean chunkPertainsToPlayersFaction = claimedChunkFactionName.equals(playerFaction);
+				if(chunkPertainsToPlayersFaction == false) {
+					event.setCancelled(true);
+					player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED + "You do not have permission to edit " + blockChunkX + " " + blockChunkZ);
+					player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED + "This land is owned by " + claimedChunkFactionName);
+				}
+				else{
+				}
+			} catch (NullPointerException npe) {
+			    // It's fine if chunkPertainsToPlayersFaction throws an NPE
+			}
+			if(claimedChunkFactionName == null) {
+				event.setCancelled(false);
+			}
+			else {
+				
+			}
+		
+	}
+	@EventHandler
+	public void onEntityExplosion(EntityExplodeEvent event) {
+		try {
+			Entity entityExploding = event.getEntity();
+			int entityChunkX = entityExploding.getLocation().getChunk().getX();
+			int entityChunkZ = entityExploding.getLocation().getChunk().getZ();
+			Boolean chunkIsClaimed = chunkSavesRetrieval.getChunkSavesFile().getConfigurationSection("ClaimedChunks").contains(entityChunkX+","+entityChunkZ);
+			if(chunkIsClaimed == true) {
+				event.setCancelled(true);
+			}
+		} catch (NullPointerException npe) {
+			//Catchs the npe
+		}
 	}
 }
