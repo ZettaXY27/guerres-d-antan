@@ -17,27 +17,29 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import net.milkbowl.vault.economy.Economy;;
 
 @SuppressWarnings("unused")
 public class CommandExec implements CommandExecutor {
 	//Variable declaration field
 	Main plugin;
+	Economy economy = null;
     ChunkManagement chunkManagement;
-//    String StringConstants.MESSAGE_PREFIX_MISTAKE = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED;
-//	String StringConstants.MESSAGE_PREFIX_ERROR = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.DARK_RED;
-//	String StringConstants.MESSAGE_PREFIX_OK = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.GREEN;
-//	String StringConstants.MESSAGE_PREFIX_INFO = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.BLUE;
-//	String StringConstants.MESSAGE_GENERIC_ERROR = StringConstants.MESSAGE_PREFIX_ERROR + "Something went wrong :( I'll try to fix it, try it again maybe?";
-    
-    //StringConstants sc;
-    
+    String MESSAGE_PREFIX_MISTAKE = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED;
+	String MESSAGE_PREFIX_ERROR = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.DARK_RED;
+	String MESSAGE_PREFIX_OK = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.GREEN;
+	String MESSAGE_PREFIX_INFO = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.BLUE;
+	String MESSAGE_GENERIC_ERROR = MESSAGE_PREFIX_ERROR + "Something went wrong :( I'll try to fix it, try it again maybe?";
 	HashMap<String, String> inviteStore = new HashMap<String, String>();
-	
-
 	public CommandExec(Main plugin) {
 		this.plugin = plugin;
 	}
-
+	//Invite check, will return NPE if the HashMap is null.
+	Boolean playerHasBeenInvited(String player1, String player2) {
+		//Value is normally assigned to player1, which is the key
+		Boolean isInvited = inviteStore.containsKey(player1) && inviteStore.containsValue(player2) ;
+		return isInvited;
+	}
     //Actual command, this has to be registered in the main class
 	@SuppressWarnings("deprecation")
 	@Override
@@ -55,6 +57,7 @@ public class CommandExec implements CommandExecutor {
 		  }
 		  else {
 			  if(extraArguments[0].equalsIgnoreCase("claim")) {
+				  economy = plugin.getEconomy();
 				  int playerChunkX = player.getLocation().getChunk().getX();
 				  int playerChunkZ = player.getLocation().getChunk().getZ();
 				  String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").getString(sender.getName());
@@ -63,11 +66,11 @@ public class CommandExec implements CommandExecutor {
 					  if(plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks") == null) {
 						  plugin.getChunkSavesFile().createSection("ClaimedChunks");
 						  plugin.saveChunkSavesFile();
-						  player.sendMessage(StringConstants.MESSAGE_GENERIC_ERROR);
+						  player.sendMessage(MESSAGE_GENERIC_ERROR);
 						  return true;
 					  }
 					  if(plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks").contains(playerChunkX+","+playerChunkZ)){						  
-					      player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "This land is already claimed by " + ChatColor.GOLD + plugin.chunkSavesFile.getConfigurationSection("ClaimedChunks").getString(playerChunkX+","+playerChunkZ));
+					      player.sendMessage(MESSAGE_PREFIX_ERROR + "This land is already claimed by " + ChatColor.GOLD + plugin.chunkSavesFile.getConfigurationSection("ClaimedChunks").getString(playerChunkX+","+playerChunkZ));
 					      return true;
 					  }
 					  else {
@@ -80,41 +83,52 @@ public class CommandExec implements CommandExecutor {
 								  Boolean playerIsOfficer = officerList.contains(player.getName());
 								  Boolean playerIsLeader = plugin.getSecondConfig().getConfigurationSection(playerFaction).getString("Owner").equals(sender.getName());
 								  if(playerIsOfficer == true || playerIsLeader == true) {
-									  chunkList.add(playerChunkX + "," + playerChunkZ);
-									  plugin.chunkSavesFile.getConfigurationSection(playerFaction).set("Chunks", chunkList);
-									  plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks").set(playerChunkX+","+playerChunkZ, playerFaction);
-									  plugin.saveChunkSavesFile();
-									  player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " You just claimed " + ChatColor.DARK_AQUA + playerChunkX + " " + playerChunkZ);
-									  return true;  
+									  int claimCost = plugin.getConfig().getInt("ClaimCost");
+									  boolean playerHasEnoughBalance = economy.has(player.getName(), claimCost);
+									  if(playerHasEnoughBalance == true) {
+										  economy.withdrawPlayer(player.getName(), claimCost);
+										  chunkList.add(playerChunkX + "," + playerChunkZ);
+										  plugin.chunkSavesFile.getConfigurationSection(playerFaction).set("Chunks", chunkList);
+										  plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks").set(playerChunkX+","+playerChunkZ, playerFaction);
+										  plugin.saveChunkSavesFile();
+										  player.sendMessage(MESSAGE_PREFIX_OK + " You just claimed " + ChatColor.DARK_AQUA + playerChunkX + " " + playerChunkZ);
+										  player.sendMessage(MESSAGE_PREFIX_OK + claimCost + " has been withdrawn from your account!");
+										  return true;  
+									  }
+									  else {
+										  player.sendMessage(MESSAGE_PREFIX_ERROR + " You do not have enough money!");
+										  return true;
+									  }
+									  
 								  }
 								  else {
-									  player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "You are not allowed to do this!");
+									  player.sendMessage(MESSAGE_PREFIX_ERROR + "You are not allowed to do this!");
 									  return true;
 								  }
 							  }
 							  else {
 								  plugin.chunkSavesFile.createSection("ClaimedChunks");
-								  player.sendMessage(StringConstants.MESSAGE_GENERIC_ERROR);
+								  player.sendMessage(MESSAGE_GENERIC_ERROR);
 								  return true;
 								  
 							  }
 						  }
 						  else {
-							  player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "Your faction already owns this land!");
-							  return false;
+							  player.sendMessage(MESSAGE_PREFIX_ERROR + "Your faction already owns this land!");
+							  return true;
 					  }
 						  }
 					  else {
 						 plugin.getChunkSavesFile().getConfigurationSection(playerFaction).createSection("Chunks");
 						 plugin.saveChunkSavesFile();
-						 player.sendMessage(StringConstants.MESSAGE_GENERIC_ERROR);
+						 player.sendMessage(MESSAGE_GENERIC_ERROR);
 						 return true;
 					  
 					  }
 				  }
 				  }
 				  else {
-					  player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "You are not a citizen of any country!");
+					  player.sendMessage(MESSAGE_PREFIX_ERROR + "You are not a citizen of any country!");
 					  return false;
 				  }
 				  //////////////
@@ -127,16 +141,16 @@ public class CommandExec implements CommandExecutor {
 				  else {
 					 String Name = extraArguments[1];
 					 if(plugin.getSecondConfig().contains(Name)) {
-						 player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "There is a country called " + Name + " already!");
-						 return false;
+						 player.sendMessage(MESSAGE_PREFIX_ERROR + "There is a country called " + Name + " already!");
+						 return true;
 					 }
 					 else {
 						 if(plugin.getSecondConfig().contains("Citizens") == false) {
 							 plugin.getSecondConfig().createSection("Citizens");
 						 }
 						 else if(plugin.getSecondConfig().getConfigurationSection("Citizens").contains(player.getName())) {
-							player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "You are already in a faction!");
-							return false;
+							player.sendMessage(MESSAGE_PREFIX_ERROR + "You are already in a faction!");
+							return true;
 						 }
 						 plugin.getSecondConfig().createSection(Name);
 						 plugin.getSecondConfig().getConfigurationSection(Name).set("Owner", player.getName());
@@ -144,7 +158,7 @@ public class CommandExec implements CommandExecutor {
 						 plugin.getChunkSavesFile().createSection(Name).createSection("Chunks");
 						 ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile, plugin.chunkSavesFileConfiguration);
 						 plugin.saveSecondConfig();
-						 player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You established a new country called " + ChatColor.GOLD + Name);
+						 player.sendMessage(MESSAGE_PREFIX_OK + "You established a new country called " + ChatColor.GOLD + Name);
 						 return true; 
 					 }
 				
@@ -155,13 +169,23 @@ public class CommandExec implements CommandExecutor {
 				Player invitedPlayer = (Bukkit.getServer().getPlayer(extraArguments[1]));
 				String invitedPlayerName = invitedPlayer.getName();
 				String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").getString(sender.getName());
+				Boolean playerIsInAFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").contains(invitedPlayerName);
 				  if(extraArguments.length == 0) {
 					  sender.sendMessage("Not enough arguments");
 					  return false;
 				  }
 				  else {
+					  if(playerHasBeenInvited(player.getName(), invitedPlayerName) == true) {
+						  player.sendMessage(MESSAGE_PREFIX_ERROR + "That player has already been invited!");
+						  return true;
+					  }
+					  else if(playerIsInAFaction == true) {
+						  player.sendMessage(MESSAGE_PREFIX_ERROR + "That player is already in a country!");
+						  return true;
+					  }
 					  inviteStore.put(player.getName(), invitedPlayerName);
-					  invitedPlayer.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You have been invited to " + playerFaction + "!");
+					  player.sendMessage(MESSAGE_PREFIX_OK + "You have invited " + invitedPlayerName + " to " + playerFaction);
+					  invitedPlayer.sendMessage(MESSAGE_PREFIX_OK + "You have been invited to " + playerFaction + "!");
 					  return true;
 				  }
 			  }
@@ -172,7 +196,16 @@ public class CommandExec implements CommandExecutor {
 				  }
 				  else {
 					  Player playerThatInvites = (Bukkit.getServer().getPlayer(extraArguments[1]));
-					  if(inviteStore.get(playerThatInvites.getName()).equals(player.getName())) {
+					  Boolean playerIsInAFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").contains(player.getName());
+					  if(playerHasBeenInvited(playerThatInvites.getName(), player.getName()) == null) {
+						  player.sendMessage(MESSAGE_PREFIX_ERROR + "You have not been invited to any countries!");
+						  return true;
+					  }
+					  else if(playerIsInAFaction == true) {
+						  player.sendMessage(MESSAGE_PREFIX_ERROR + "You are already in a country!");
+						  return true;
+					  }
+					  else if(playerHasBeenInvited(playerThatInvites.getName(), player.getName()) == true) {
 						  String factionPlayerHasBeenInvitedTo = plugin.getSecondConfig().getConfigurationSection("Citizens").getString(playerThatInvites.getName());
 						  List<String> memberList = plugin.getSecondConfig().getConfigurationSection(factionPlayerHasBeenInvitedTo).getStringList("Members");
 						  plugin.saveSecondConfig();
@@ -180,7 +213,7 @@ public class CommandExec implements CommandExecutor {
 						  memberList.add(player.getName());
 						  plugin.getSecondConfig().getConfigurationSection(factionPlayerHasBeenInvitedTo).set("Members", memberList);
 						  plugin.saveSecondConfig();
-						  player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You have joined " + factionPlayerHasBeenInvitedTo);
+						  player.sendMessage(MESSAGE_PREFIX_OK + "You have joined " + factionPlayerHasBeenInvitedTo);
 						  inviteStore.remove(playerThatInvites.getName());
 						  return true;
 
@@ -202,7 +235,7 @@ public class CommandExec implements CommandExecutor {
 			  else if(extraArguments[0].equalsIgnoreCase("cc")) {
 				  int playerChunkX = player.getLocation().getChunk().getX();
 				  int playerChunkZ = player.getLocation().getChunk().getZ();
-				  player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " You are standing on chunk " + playerChunkX + " " + playerChunkZ);
+				  player.sendMessage(MESSAGE_PREFIX_OK + " You are standing on chunk " + playerChunkX + " " + playerChunkZ);
 				  return true;
 			  }
 			  else if(extraArguments[0].equalsIgnoreCase("help")) {
@@ -230,18 +263,23 @@ public class CommandExec implements CommandExecutor {
 						  for (int i = 0; i < chunkList.size(); i++) {
 								if(plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks").getString(chunkList.get(i)).contains(playerFaction)) {
 								    plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks").set(chunkList.get(i), null);
-								    plugin.getSecondConfig().set(playerFaction, null);
-								    plugin.getSecondConfig().getConfigurationSection("Citizens").set(playerName, null);
 								    plugin.getChunkSavesFile().set(playerFaction, null);
 								    plugin.saveChunkSavesFile();
 								    plugin.saveSecondConfig();
-								    Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_INFO + playerFaction + " has been disbanded!");
-								    return true;
 								}
 							    else {
-									player.sendMessage(StringConstants.MESSAGE_GENERIC_ERROR);
+									player.sendMessage(MESSAGE_GENERIC_ERROR);
 								}
 						   }
+						   for (int i = 0; i < memberList.size(); i++) {
+							   plugin.getSecondConfig().getConfigurationSection("Citizens").set(memberList.get(i), null);
+							   plugin.saveSecondConfig();
+						   }
+						   plugin.getSecondConfig().set(playerFaction, null);
+						   plugin.getSecondConfig().getConfigurationSection("Citizens").set(playerName, null);
+						   plugin.saveSecondConfig();
+						   Bukkit.broadcastMessage(MESSAGE_PREFIX_INFO + playerFaction + " has been disbanded!");
+						   return true;
 
 //						  plugin.saveSecondConfig();
 //						  plugin.saveChunkSavesFile();
@@ -251,12 +289,13 @@ public class CommandExec implements CommandExecutor {
 						  plugin.getSecondConfig().getConfigurationSection(playerFaction).set("Members", memberList);
 						  plugin.getSecondConfig().getConfigurationSection("Citizens").set(playerName, null);
 						  plugin.saveSecondConfig();
-						  player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You left " + playerFaction);
+						  player.sendMessage(MESSAGE_PREFIX_OK + "You left " + playerFaction);
 						  return true;
 					  }
 				  }
 				  else {
-					  player.sendMessage(StringConstants.MESSAGE_GENERIC_ERROR); 
+					  player.sendMessage(MESSAGE_PREFIX_ERROR + "You are not a citizen of any country!"); 
+					  return true;
 				  }
 			  }
 			  else if(extraArguments[0].equalsIgnoreCase("help2")) {
@@ -282,8 +321,8 @@ public class CommandExec implements CommandExecutor {
 						  memberList.add(playerToBeGrantedOfficerStatusName);
 						  plugin.getSecondConfig().getConfigurationSection(playerFaction).set("Members", memberList);
 						  plugin.saveSecondConfig();
-						  player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You have unset " + playerToBeGrantedOfficerStatusName + " as officer!" );
-						  playerToBeGrantedOfficerStatus.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You are no longer an officer of " + playerFaction);
+						  player.sendMessage(MESSAGE_PREFIX_OK + "You have unset " + playerToBeGrantedOfficerStatusName + " as officer!" );
+						  playerToBeGrantedOfficerStatus.sendMessage(MESSAGE_PREFIX_OK + "You are no longer an officer of " + playerFaction);
 						  return true;
 					  }
 					  else {
@@ -292,18 +331,18 @@ public class CommandExec implements CommandExecutor {
 						  memberList.remove(playerToBeGrantedOfficerStatusName);
 						  plugin.getSecondConfig().getConfigurationSection(playerFaction).set("Members", memberList);
 						  plugin.saveSecondConfig();
-						  player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You have set " + playerToBeGrantedOfficerStatusName + " as officer!" );
-						  playerToBeGrantedOfficerStatus.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You are now an officer of " + playerFaction);
+						  player.sendMessage(MESSAGE_PREFIX_OK + "You have set " + playerToBeGrantedOfficerStatusName + " as officer!" );
+						  playerToBeGrantedOfficerStatus.sendMessage(MESSAGE_PREFIX_OK + "You are now an officer of " + playerFaction);
 						  return true;
 					  }
 				  }
 				  else {
 					  if(playerIsLeader == false) {
-						  player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "You need to be the leader to do this!");
+						  player.sendMessage(MESSAGE_PREFIX_ERROR + "You need to be the leader to do this!");
 						  return true;
 					  }
 					  if(playersAreInSameFaction == false) {
-						  player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "You are not in the same faction!");
+						  player.sendMessage(MESSAGE_PREFIX_ERROR + "You are not in the same faction!");
 						  return true;
 					  }
 				  }
@@ -326,31 +365,31 @@ public class CommandExec implements CommandExecutor {
 				  if (playerIsLeader == true || playerIsOfficer == true) {
 					  if(playerBeingKickedIsOfficer == true) {
 						  if(playerBeingKickedIsLeader == true) {
-							  player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "You can't kick the leader!");
+							  player.sendMessage(MESSAGE_PREFIX_ERROR + "You can't kick the leader!");
 							  return true;
 						  }
 						  officerList.remove(playerBeingKickedName);
 						  plugin.getSecondConfig().getConfigurationSection(playerFaction).set("Officers", officerList);
 						  plugin.getSecondConfig().getConfigurationSection("Citizens").set(playerBeingKickedName, null);
 						  plugin.saveSecondConfig();
-						  player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You kicked " + playerBeingKickedName + " from the faction!");
-						  Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_ERROR + playerName + " kicked " + playerBeingKickedName + " from " + playerFaction + "! How evil!");
+						  player.sendMessage(MESSAGE_PREFIX_OK + "You kicked " + playerBeingKickedName + " from the faction!");
+						  Bukkit.broadcastMessage(MESSAGE_PREFIX_ERROR + playerName + " kicked " + playerBeingKickedName + " from " + playerFaction + "! How evil!");
 						  return true;
 					  }
 					  else {
 						  if(playerBeingKickedIsLeader == true) {
-							  player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "You can't kick the leader!");
+							  player.sendMessage(MESSAGE_PREFIX_ERROR + "You can't kick the leader!");
 							  return true;
 						  }
 						  plugin.getSecondConfig().getConfigurationSection("Citizens").set(playerBeingKickedName, null);
 						  plugin.saveSecondConfig();
-						  player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You kicked " + playerBeingKickedName + " from the faction!");
-						  Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_ERROR + playerName + " kicked " + playerBeingKickedName + " from " + playerFaction + "! How evil!");
+						  player.sendMessage(MESSAGE_PREFIX_OK + "You kicked " + playerBeingKickedName + " from the faction!");
+						  Bukkit.broadcastMessage(MESSAGE_PREFIX_ERROR + playerName + " kicked " + playerBeingKickedName + " from " + playerFaction + "! How evil!");
 						  return true;  
 					  }
 				  }
 				  else {
-					  player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "You need to be officer/leader to do this!");
+					  player.sendMessage(MESSAGE_PREFIX_ERROR + "You need to be officer/leader to do this!");
 				  }
 			  }
 			  else if(extraArguments[0].equalsIgnoreCase("firstRun")) {

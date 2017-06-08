@@ -22,8 +22,11 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+
+import net.milkbowl.vault.economy.Economy;
 
 /**
  * 
@@ -32,13 +35,20 @@ import org.bukkit.scheduler.BukkitScheduler;
  */
 @SuppressWarnings("unused")
 public class Main extends JavaPlugin{
-	
-	//COMMON FILE HANDLERS
+	public static Economy economy = null;
 	public FileConfiguration secondConfig  = null;
 	public File secondConfigFile  = null;
 	public File chunkSavesFileConfiguration;
 	public FileConfiguration chunkSavesFile;
 	//Reloads the secondary config file, if it's non existent it will attempt to create one
+	public void saveChunkSavesFile(){
+		try{
+			chunkSavesFile.save(chunkSavesFileConfiguration);
+		 
+		}catch(Exception e){
+		e.printStackTrace();
+		}
+		}
 	public void reloadSecondConfig() {
 	    if (secondConfigFile == null) {
 	    	secondConfigFile = new File(getDataFolder(), "secondConfig.yml");
@@ -75,29 +85,32 @@ public class Main extends JavaPlugin{
 	        getLogger().log(Level.SEVERE, "Could not save config to " + secondConfigFile, ex);
 	    }
 	}
+    private boolean setupEconomy()
+    {
+        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+        if (economyProvider != null) {
+            economy = economyProvider.getProvider();
+        }
+
+        return (economy != null);
+    }
+    public Economy getEconomy() {
+    	return economy;
+    	}
 	@Override
 	//debug messages and event registering
 	public void onEnable() {
+		setupEconomy();
 		new ChunkInteraction(this);
-		
-		chunkSavesFileConfiguration = new File(getDataFolder(), "chunk_saves.yml"); // creates the file under a folder called guerresD_antan
-        chunkSavesFile = YamlConfiguration.loadConfiguration(chunkSavesFileConfiguration);
-        saveChunkSavesFile();
-		
+ 		chunkSavesFileConfiguration = new File(getDataFolder(), "chunk_saves.yml"); // creates the file under a folder called guerresD_antan
+  		chunkSavesFile = YamlConfiguration.loadConfiguration(chunkSavesFileConfiguration);
+  		saveChunkSavesFile();
 		getSecondConfig();
+		this.saveDefaultConfig();
 		//Adding commands, it has to be defined in the CommandExec class for it to work
 		this.getCommand("test").setExecutor(new CommandExec(this));
 		this.getCommand("gda").setExecutor(new CommandExec(this));
 		getLogger().info("papa, you might be looking at console rn, so I'd like to wish you a good day");
-	}
-	public void saveChunkSavesFile(){
-		try{
-			chunkSavesFile.save(chunkSavesFileConfiguration);
-		 
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
 	}
 	//A quick little message. It's not necessary but eh why not
     @Override
