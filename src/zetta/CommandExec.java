@@ -59,7 +59,70 @@ public class CommandExec implements CommandExecutor {
 				.contains(playerName);
 		return playerIsMember;
 	}
-
+	
+	/**
+	 * @author Inivican
+	 * @param factionName the required faction name as a String
+	 * @return Returns a list of all the citizens in a given faction
+	 */
+	List<String> listCitizens(String factionName){
+		List<String> citizenList = plugin.getSecondConfig().getConfigurationSection(factionName).getStringList("Citizens");
+		
+		//List<String> memberList = plugin.getSecondConfig()
+		//.getConfigurationSection(factionPlayerHasBeenInvitedTo).getStringList("Members");
+				
+		return citizenList;
+	}
+	
+	/**
+	 * 
+	 * @param player
+	 * @param sender
+	 * @param arguments
+	 * @return returns the command status (whether successful or not)
+	 */
+	boolean showNationStats(Player player, CommandSender sender, String[] arguments){
+		
+		if(arguments[0].length() == 0){
+			player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + "Not enough arguments.");
+			return false;
+		}
+		
+		List<String> chunkList = plugin.chunkSavesFile
+				.getConfigurationSection(getPlayerFaction(player.getName()))
+				.getStringList("Chunks");
+		List<String> officerList = plugin.getSecondConfig()
+				.getConfigurationSection(getPlayerFaction(player.getName()))
+				.getStringList("Officers");
+		plugin.saveSecondConfig();
+		Boolean playerIsOfficer = officerList.contains(player.getName());
+		Boolean playerIsLeader = plugin.getSecondConfig()
+				.getConfigurationSection(getPlayerFaction(player.getName()))
+				.getString("Owner").equals(sender.getName());
+		
+		String factionName = arguments[1];
+		String ownerName = plugin.getSecondConfig().getConfigurationSection(factionName).getString("Owner");
+		
+		List<String> citizenList = listCitizens(factionName);
+		
+		economy = plugin.getEconomy();
+		
+		sender.sendMessage("=====================================\n");
+		sender.sendMessage("Number of members:"+citizenList.toArray().length);
+		sender.sendMessage("Money:"+economy.bankBalance(factionName));
+		sender.sendMessage("Leader: "+ownerName);
+		for(String i : citizenList){
+			sender.sendMessage(i);
+		}
+		sender.sendMessage("Officials");
+		for(String i : officerList){
+			sender.sendMessage(i);
+		}
+		
+		return true;
+	}
+	
+	
 	// Actual command, this has to be registered in the main class
 	@SuppressWarnings("deprecation")
 	@Override
@@ -167,7 +230,11 @@ public class CommandExec implements CommandExecutor {
 						return false;
 					}
 					//////////////
-				} else if (extraArguments[0].equalsIgnoreCase("unclaim")) {
+				} 
+				else if(extraArguments[0].equalsIgnoreCase("stats")){
+					return showNationStats(player,sender,extraArguments);
+				}
+				else if (extraArguments[0].equalsIgnoreCase("unclaim")) {
 					int playerChunkX = player.getLocation().getChunk().getX();
 					int playerChunkZ = player.getLocation().getChunk().getZ();
 					if (playerIsInAFaction(player.getName()) == true && getPlayerFaction(player.getName())
@@ -204,7 +271,7 @@ public class CommandExec implements CommandExecutor {
 
 									} else {
 										player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE
-												+ " You need to be officer/leader to do this!");
+												+ " You need to be an/a official/leader to do this!");
 										return true;
 									}
 								} else {
@@ -329,10 +396,10 @@ public class CommandExec implements CommandExecutor {
 							.getString(sender.getName());
 					List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(playerFaction)
 							.getStringList("Chunks");
-					player.sendMessage(ChatColor.GREEN + "=======================================");
+					player.sendMessage(ChatColor.GREEN + "=======================================\n");
 					for (String s : chunkList)
 						player.sendMessage(s);
-					player.sendMessage(ChatColor.GREEN + "=======================================");
+					player.sendMessage(ChatColor.GREEN + "=======================================\n");
 					return true;
 				} else if (extraArguments[0].equalsIgnoreCase("cc")) {
 					int playerChunkX = player.getLocation().getChunk().getX();
@@ -423,7 +490,7 @@ public class CommandExec implements CommandExecutor {
 					}
 				} else if (extraArguments[0].equalsIgnoreCase("help2")) {
 					// TODO: Add help2 command
-				} else if (extraArguments[0].equalsIgnoreCase("officer")) {
+				} else if (extraArguments[0].equalsIgnoreCase("official")) {
 					String playerName = player.getName();
 					Player playerToBeGrantedOfficerStatus = (Bukkit.getServer().getPlayer(extraArguments[1]));
 					String playerToBeGrantedOfficerStatusName = playerToBeGrantedOfficerStatus.getName();
