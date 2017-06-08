@@ -60,16 +60,36 @@ public class CommandExec implements CommandExecutor {
 		return playerIsMember;
 	}
 	
+	String getLeaderName(String factionName){
+		return plugin.getSecondConfig().getConfigurationSection(factionName).getString("Owner");
+	}
+	
+	List<String> listOfficialNames(String factionName, Player player){
+		List<String> officerList;
+		return officerList = (plugin.getSecondConfig().getConfigurationSection(getPlayerFaction(player.getName())).getStringList("Officers"));
+	}
+	/**
+	 * @author Inivican
+	 * @param factionName
+	 * @return
+	 */
+	List<String> listMemberNames(String factionName){
+		List<String> memberList;
+		return memberList = plugin.getSecondConfig().getConfigurationSection(factionName).getStringList("Members");
+	}
 	/**
 	 * @author Inivican
 	 * @param factionName the required faction name as a String
 	 * @return Returns a list of all the citizens in a given faction
 	 */
-	List<String> listCitizens(String factionName){
-		List<String> citizenList = plugin.getSecondConfig().getConfigurationSection(factionName).getStringList("Citizens");
-		
-		//List<String> memberList = plugin.getSecondConfig()
-		//.getConfigurationSection(factionPlayerHasBeenInvitedTo).getStringList("Members");
+	List<String> listCitizens(String factionName, Player player){
+		List<String> officerList = plugin.getSecondConfig()
+				.getConfigurationSection(getPlayerFaction(player.getName()))
+				.getStringList("Officers");
+		List<String> citizenList = officerList;
+		String ownerName = plugin.getSecondConfig().getConfigurationSection(factionName).getString("Owner");
+		citizenList.add(ownerName);
+		citizenList.addAll(listMemberNames(factionName));
 				
 		return citizenList;
 	}
@@ -83,10 +103,10 @@ public class CommandExec implements CommandExecutor {
 	 */
 	boolean showNationStats(Player player, CommandSender sender, String[] arguments){
 		
-		if(arguments[0].length() == 0){
-			player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + "Not enough arguments.");
-			return false;
-		}
+//		if(arguments[0].length() == 0){
+//			player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + "Not enough arguments.");
+//			return false;
+//		}
 		
 		List<String> chunkList = plugin.chunkSavesFile
 				.getConfigurationSection(getPlayerFaction(player.getName()))
@@ -94,6 +114,8 @@ public class CommandExec implements CommandExecutor {
 		List<String> officerList = plugin.getSecondConfig()
 				.getConfigurationSection(getPlayerFaction(player.getName()))
 				.getStringList("Officers");
+		
+		
 		plugin.saveSecondConfig();
 		Boolean playerIsOfficer = officerList.contains(player.getName());
 		Boolean playerIsLeader = plugin.getSecondConfig()
@@ -103,7 +125,10 @@ public class CommandExec implements CommandExecutor {
 		String factionName = arguments[1];
 		String ownerName = plugin.getSecondConfig().getConfigurationSection(factionName).getString("Owner");
 		
-		List<String> citizenList = listCitizens(factionName);
+		List<String> citizenList = officerList;
+		citizenList.add(ownerName);
+		citizenList.addAll(listMemberNames(factionName));
+		
 		
 		economy = plugin.getEconomy();
 		
@@ -114,10 +139,7 @@ public class CommandExec implements CommandExecutor {
 		for(String i : citizenList){
 			sender.sendMessage(i);
 		}
-		sender.sendMessage("Officials");
-		for(String i : officerList){
-			sender.sendMessage(i);
-		}
+		
 		
 		return true;
 	}
