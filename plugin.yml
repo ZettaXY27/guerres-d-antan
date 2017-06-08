@@ -3,6 +3,7 @@ version: 0.1
 main: zetta.Main
 authors: [ZettaX, Inivican]
 description: For Project Olympic
+depend: [Vault] 
 commands:
    test:
       description: Testing shit you little fuck.
