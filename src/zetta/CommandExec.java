@@ -25,6 +25,7 @@ public class CommandExec implements CommandExecutor {
 	Economy economy = null;
 	ChunkManagement chunkManagement;
 	HashMap<String, String> inviteStore = new HashMap<String, String>();
+	String chunkAmount;
 
 	public CommandExec(Main plugin) {
 		this.plugin = plugin;
@@ -242,10 +243,11 @@ public class CommandExec implements CommandExecutor {
 								plugin.getSecondConfig().createSection("Citizens");
 							} else if (plugin.getSecondConfig().getConfigurationSection("Citizens")
 									.contains(player.getName())) {
-								player.sendMessage(
-										StringConstants.MESSAGE_PREFIX_ERROR + " You are already a citizen of a country!");
+								player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
+										+ " You are already a citizen of a country!");
 								return true;
 							}
+							economy = plugin.getEconomy();
 							plugin.getSecondConfig().createSection(Name);
 							plugin.getSecondConfig().getConfigurationSection(Name).set("Owner", player.getName());
 							plugin.getSecondConfig().getConfigurationSection("Citizens").set(player.getName(), Name);
@@ -253,6 +255,7 @@ public class CommandExec implements CommandExecutor {
 							ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile,
 									plugin.chunkSavesFileConfiguration);
 							plugin.saveSecondConfig();
+							economy.createBank(Name, player.getName());
 							player.sendMessage(StringConstants.MESSAGE_PREFIX_OK
 									+ "You established a new country called " + ChatColor.GOLD + Name);
 							return true;
@@ -274,16 +277,17 @@ public class CommandExec implements CommandExecutor {
 									StringConstants.MESSAGE_PREFIX_ERROR + " That player has already been invited!");
 							return true;
 						} else if (playerIsInAFaction(invitedPlayerName) == true) {
-							player.sendMessage(
-									StringConstants.MESSAGE_PREFIX_ERROR + " That player is already a citizen of a country!");
+							player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
+									+ " That player is already a citizen of a country!");
+							return true;
+						} else if (playerIsInAFaction(invitedPlayerName) == false) {
+							inviteStore.put(player.getName(), invitedPlayerName);
+							player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " You have invited "
+									+ invitedPlayerName + " to " + getPlayerFaction(player.getName()));
+							invitedPlayer.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " You have been invited to "
+									+ getPlayerFaction(player.getName()) + "!");
 							return true;
 						}
-						inviteStore.put(player.getName(), invitedPlayerName);
-						player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " You have invited " + invitedPlayerName
-								+ " to " + getPlayerFaction(player.getName()));
-						invitedPlayer.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " You have been invited to "
-								+ getPlayerFaction(player.getName()) + "!");
-						return true;
 					}
 				} else if (extraArguments[0].equalsIgnoreCase("join")) {
 					if (extraArguments.length == 0) {
@@ -355,48 +359,58 @@ public class CommandExec implements CommandExecutor {
 				} else if (extraArguments[0].equalsIgnoreCase("leave")) {
 					if (playerIsInAFaction(player.getName()) == true) {
 						String playerName = player.getName();
-						List<String> memberList = plugin.getSecondConfig()
-								.getConfigurationSection(getPlayerFaction(player.getName())).getStringList("Members");
-						plugin.saveSecondConfig();
-						List<String> chunkList = plugin.getChunkSavesFile()
-								.getConfigurationSection(getPlayerFaction(player.getName())).getStringList("Chunks");
+						String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens")
+								.getString(playerName);
 						if (plugin.getSecondConfig().getConfigurationSection(getPlayerFaction(player.getName()))
 								.getString("Owner").equals(playerName)) {
+							List<String> memberList = plugin.getSecondConfig()
+									.getConfigurationSection(getPlayerFaction(player.getName()))
+									.getStringList("Members");
+							plugin.saveSecondConfig();
+							List<String> chunkList = plugin.getChunkSavesFile()
+									.getConfigurationSection(getPlayerFaction(player.getName()))
+									.getStringList("Chunks");
 							for (int i = 0; i < chunkList.size(); i++) {
 								if (plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
 										.getString(chunkList.get(i)).contains(getPlayerFaction(player.getName()))) {
 									plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
 											.set(chunkList.get(i), null);
-									plugin.getChunkSavesFile().set(getPlayerFaction(player.getName()), null);
 									plugin.saveChunkSavesFile();
 									plugin.saveSecondConfig();
 								} else {
 									player.sendMessage(StringConstants.MESSAGE_GENERIC_ERROR);
 								}
 							}
+							Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_INFO
+									+ getPlayerFaction(player.getName()) + " has been disbanded!");
+							plugin.getSecondConfig().getConfigurationSection(playerFaction).set("Officers", null);
+							plugin.getChunkSavesFile().set(playerFaction, null);
+							plugin.getSecondConfig().set(playerFaction, null);
+							plugin.getSecondConfig().getConfigurationSection("Citizens").set(playerName, null);
+							plugin.saveSecondConfig();
+							plugin.saveChunkSavesFile();
 							for (int i = 0; i < memberList.size(); i++) {
 								plugin.getSecondConfig().getConfigurationSection("Citizens").set(memberList.get(i),
 										null);
 								plugin.saveSecondConfig();
 							}
-							if(getPlayerFaction(player.getName()) == null) {
-								player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + " You are not a citizen of any country!");
-								return true;
-							}
-							plugin.getSecondConfig().set(getPlayerFaction(player.getName()), null);
-							plugin.getSecondConfig().getConfigurationSection("Citizens").set(playerName, null);
 							plugin.saveSecondConfig();
-							Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_INFO
-									+ getPlayerFaction(player.getName()) + " has been disbanded!");
+							plugin.saveChunkSavesFile();
 							return true;
-
-							// plugin.saveSecondConfig();
-							// plugin.saveChunkSavesFile();
 						} else {
+							List<String> memberList = plugin.getSecondConfig()
+									.getConfigurationSection(getPlayerFaction(player.getName()))
+									.getStringList("Members");
+							plugin.saveSecondConfig();
 							memberList.remove(playerName);
 							plugin.getSecondConfig().getConfigurationSection(getPlayerFaction(player.getName()))
 									.set("Members", memberList);
 							plugin.getSecondConfig().getConfigurationSection("Citizens").set(playerName, null);
+							if (plugin.getSecondConfig().getConfigurationSection(playerFaction)
+									.getStringList("Officers").contains(playerName)) {
+								plugin.getSecondConfig().getConfigurationSection(playerFaction)
+										.getStringList("Officers").remove(playerName);
+							}
 							plugin.saveSecondConfig();
 							player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "You left "
 									+ getPlayerFaction(player.getName()));

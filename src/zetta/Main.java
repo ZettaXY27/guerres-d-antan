@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -110,7 +111,17 @@ public class Main extends JavaPlugin{
 		//Adding commands, it has to be defined in the CommandExec class for it to work
 		this.getCommand("test").setExecutor(new CommandExec(this));
 		this.getCommand("gda").setExecutor(new CommandExec(this));
-		getLogger().info("papa, you might be looking at console rn, so I'd like to wish you a good day");
+		this.getServer().getScheduler().runTaskTimer(this, new Runnable()
+	      {
+	        @Override
+	        public void run()
+	        {
+	        	CommandExec cmdEx;
+	        	Main plugin;
+	            // this code will be executed in the main thread each time the task runs
+	        }
+	      }, (20*10L), 20*10); // 10 sec delay, 10800 (or 3 hours) secs cycle
+        getLogger().info("papa, you might be looking at console rn, so I'd like to wish you a good day");
 	}
 	//A quick little message. It's not necessary but eh why not
     @Override
