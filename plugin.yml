@@ -1,9 +1,16 @@
-version: 0.1
 name: guerresD_Antan
+version: 0.1
 main: zetta.Main
 authors: [ZettaX, Inivican]
 description: For Project Olympic
 commands:
-  test:
-    usage: Well, you probably fucked up. It is not likely for this to stop working anyways
-    description: Testing purposes
+   test:
+      description: Testing shit you little fuck.
+      usage: I mean, you're probably using it wrong you retarded asshole.
+      permission: gda.test
+      permission-message: boi what do u think you're doing
+   gda:
+      description: Main fucking command.
+      usage: Oops! something went wrong... try /gda help :)
+      permission: gda.main
+      permission-message: For some reason, you are not allowed to use this command.

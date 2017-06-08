@@ -32,6 +32,14 @@ import org.bukkit.scheduler.BukkitScheduler;
  */
 @SuppressWarnings("unused")
 public class Main extends JavaPlugin{
+	//COMMON CONSTANTS
+	public final String MESSAGE_PREFIX_MISTAKE = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED;
+	public final String MESSAGE_PREFIX_ERROR = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.DARK_RED;
+	public final String MESSAGE_PREFIX_OK = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.GREEN;
+	public final String MESSAGE_PREFIX_INFO = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.BLUE;
+	public final String MESSAGE_GENERIC_ERROR = MESSAGE_PREFIX_ERROR + "Something went wrong :( I'll try to fix it, try it again maybe?";
+	
+	//COMMON FILE HANDLERS
 	public FileConfiguration secondConfig  = null;
 	public File secondConfigFile  = null;
 	public File chunkSavesFileConfiguration;
@@ -77,6 +85,11 @@ public class Main extends JavaPlugin{
 	//debug messages and event registering
 	public void onEnable() {
 		new ChunkInteraction(this);
+		
+		chunkSavesFileConfiguration = new File(getDataFolder(), "chunk_saves.yml"); // creates the file under a folder called guerresD_antan
+        chunkSavesFile = YamlConfiguration.loadConfiguration(chunkSavesFileConfiguration);
+        saveChunkSavesFile();
+		
 		getSecondConfig();
 		//Adding commands, it has to be defined in the CommandExec class for it to work
 		this.getCommand("test").setExecutor(new CommandExec(this));
