@@ -32,12 +32,6 @@ import org.bukkit.scheduler.BukkitScheduler;
  */
 @SuppressWarnings("unused")
 public class Main extends JavaPlugin{
-	//COMMON CONSTANTS
-	public final String MESSAGE_PREFIX_MISTAKE = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED;
-	public final String MESSAGE_PREFIX_ERROR = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.DARK_RED;
-	public final String MESSAGE_PREFIX_OK = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.GREEN;
-	public final String MESSAGE_PREFIX_INFO = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.BLUE;
-	public final String MESSAGE_GENERIC_ERROR = MESSAGE_PREFIX_ERROR + "Something went wrong :( I'll try to fix it, try it again maybe?";
 	
 	//COMMON FILE HANDLERS
 	public FileConfiguration secondConfig  = null;
@@ -100,10 +94,11 @@ public class Main extends JavaPlugin{
 		try{
 			chunkSavesFile.save(chunkSavesFileConfiguration);
 		 
-		}catch(Exception e){
-		e.printStackTrace();
 		}
+		catch(Exception e){
+			e.printStackTrace();
 		}
+	}
 	//A quick little message. It's not necessary but eh why not
     @Override
     public void onDisable() {

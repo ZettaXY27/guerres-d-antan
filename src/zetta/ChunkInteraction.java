@@ -54,8 +54,8 @@ public class ChunkInteraction implements Listener {
 			boolean chunkPertainsToPlayersFaction = claimedChunkFactionName.equals(playerFaction);
 			if(chunkPertainsToPlayersFaction == false) {
 				event.setCancelled(true);
-				player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED + "You do not have permission to edit " + blockChunkX + " " + blockChunkZ);
-				player.sendMessage(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED + "This land is owned by " + claimedChunkFactionName);
+				player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + "You do not have permission to edit " + blockChunkX + " " + blockChunkZ);
+				player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + "This land is owned by " + claimedChunkFactionName);
 			}
 			else{
 			}
