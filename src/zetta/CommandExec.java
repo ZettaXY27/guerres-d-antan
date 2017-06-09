@@ -123,7 +123,21 @@ public class CommandExec implements CommandExecutor {
 
 		return citizenList;
 	}
-
+	
+	/**
+	 * @author Inivican
+	 * Determines if a faction has at least one member online
+	 * @param factionName
+	 * 				the required faction name as a String
+	 * @return returns a boolean value
+	 */
+	boolean atLeastOneCitizenIsOnline(String factionName){
+		if(listCitizens(factionName).toArray().length > 0 ){
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * 
 	 * @param player
