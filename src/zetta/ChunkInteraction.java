@@ -2,6 +2,7 @@ package zetta;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -16,6 +17,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 /**
@@ -84,9 +86,9 @@ public class ChunkInteraction implements Listener {
 			int blockChunkZ = blockBeingPlaced.getChunk().getZ();
 			int playerChunkX = event.getPlayer().getLocation().getChunk().getX();
 			int playerChunkZ = event.getPlayer().getLocation().getChunk().getZ();
-			String claimedChunkFactionName =  chunkSavesRetrieval.getChunkSavesFile().getConfigurationSection("ClaimedChunks").getString(blockChunkX+","+blockChunkZ);
 			String playerFaction = chunkSavesRetrieval.getSecondConfig().getConfigurationSection("Citizens").getString(player.getName());
 			try {
+				String claimedChunkFactionName =  chunkSavesRetrieval.getChunkSavesFile().getConfigurationSection("ClaimedChunks").getString(blockChunkX+","+blockChunkZ);
 				boolean chunkPertainsToPlayersFaction = claimedChunkFactionName.equals(playerFaction);
 				if(chunkPertainsToPlayersFaction == false) {
 					event.setCancelled(true);
@@ -98,6 +100,7 @@ public class ChunkInteraction implements Listener {
 			} catch (NullPointerException npe) {
 			    // It's fine if chunkPertainsToPlayersFaction throws an NPE
 			}
+			String claimedChunkFactionName =  chunkSavesRetrieval.getChunkSavesFile().getConfigurationSection("ClaimedChunks").getString(blockChunkX+","+blockChunkZ);
 			if(claimedChunkFactionName == null) {
 				event.setCancelled(false);
 			}
@@ -119,5 +122,16 @@ public class ChunkInteraction implements Listener {
 		} catch (NullPointerException npe) {
 			//Catchs the npe
 		}
+	}
+	@EventHandler
+	public void onPlayerDeath(PlayerDeathEvent event) {
+		Player player = event.getEntity();
+		String playerName = player.getName();
+		int taskID = CommandExec.taskIDs.get(playerName).getTaskId();
+		if(CommandExec.taskIDs.containsKey(playerName) == true) {
+			chunkSavesRetrieval.getServer().getScheduler().cancelTask(CommandExec.taskIDs.get(player.getName()).getTaskId());
+			Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_INFO + " " + playerName + "  " + "could not overclaim!");
+		}
+		
 	}
 }
