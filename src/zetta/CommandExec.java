@@ -124,22 +124,105 @@ public class CommandExec implements CommandExecutor {
 		return citizenList;
 	}
 	/**
+	 * @author Inivican
+	 * @param factionName 
+	 * @param leadersAndOfficialsOnly just needed for overloading. I felt lazy.
+	 * @return Returns Officers and the Leader BUT NOT the citizens.
+	 */
+	List<String> listCitizens(String factionName, boolean leadersAndOfficialsOnly){
+		List<String> officerList = plugin.getSecondConfig().getConfigurationSection(factionName)
+				.getStringList("Officers");
+		List<String> citizenList = officerList;
+		String ownerName = plugin.getSecondConfig().getConfigurationSection(factionName).getString("Owner");
+		citizenList.add(ownerName);
+		
+
+		return citizenList;
+	}
+
+	/**
 	 * @Author ZettaX
 	 * @param playerList
-	 *        A list of players
+	 *            A list of players
 	 * @return Returns true if one of the players in the list is online
 	 */
 	@SuppressWarnings("deprecation")
 	boolean atleastOneIsOnline(List<String> playerList) {
-		for(String i : playerList) {
-			if(plugin.getServer().getPlayerExact(i) != null) {
+		for (String i : playerList) {
+			if (plugin.getServer().getPlayerExact(i) != null) {
 				return true;
-			}
-			else {
+			} else {
 				continue;
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * FOR THE COMMAND /gda setvisa (playername) SETVISA / ACTIVATE VISA
+	 * 
+	 * @author Inivican
+	 * @param player
+	 *            The minecraft player
+	 * @param sender
+	 *            The sender of the command
+	 * @param arguments
+	 *            The extraArguments[]
+	 * @return Whether or not the command completes successfully
+	 * @note It is really getting hard to navigate this class file to find
+	 *       methods.
+	 */
+	boolean activatePlayerVisa(CommandSender sender, String[] arguments, Player player) {
+		if (arguments.length < 1) {
+			sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS);
+			return false;
+		}
+		String playerName = arguments[1];
+		if (getPlayerFaction(sender.getName()) == null) {
+			sender.sendMessage(
+					StringConstants.MESSAGE_PREFIX_ERROR + "You cannot set visa when you aren't even in a faction!");
+			return false;
+		}
+		String factionNameOfSender = getPlayerFaction(sender.getName());
+
+		if (listCitizens(factionNameOfSender).contains(playerName) == true) {
+			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
+					+ "The individual you are trying to set a visa for is a member of your faction already.");
+			return false;
+		}
+		else if(plugin.getSecondConfig().getConfigurationSection("Visas")==null){
+			plugin.getSecondConfig().createSection("Visas");
+			plugin.saveSecondConfig();
+			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR+"Created visas section as there hadn't been one in your secondConfig.yml file.");
+			return true;
+		}
+		
+		// Check to make sure the applicant isn't already a visa owner
+		else if (plugin.getSecondConfig().getConfigurationSection("Visas")
+				.contains(playerName + "," + factionNameOfSender) == false) {
+			if( listCitizens(factionNameOfSender,true).contains(sender.getName()) == false ){
+				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "Only an authorized member of a faction can activate a visa!");
+				return false;
+			}
+			List<String> visaListForFaction = plugin.getSecondConfig().getConfigurationSection(getPlayerFaction(playerName)).getStringList("Visas");
+			plugin.saveSecondConfig();
+			visaListForFaction.add(playerName +","+factionNameOfSender);
+			plugin.getSecondConfig().getConfigurationSection("Visas").set(playerName, factionNameOfSender);
+			plugin.saveSecondConfig();
+			sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "Granted visa to "+playerName+" for "+factionNameOfSender);
+
+		} else {
+			player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
+					+ "The invidual you are tring to set a visa for already has a visa for your faction.");
+			return false;
+		}
+
+		return true;
+	}
+
+	boolean playerDoesNotAlreadyHaveAVisaForAFaction(String playerName, String factionName) {
+
+		return true;
 	}
 
 	/**
@@ -175,7 +258,7 @@ public class CommandExec implements CommandExecutor {
 
 		economy = plugin.getEconomy();
 
-		sender.sendMessage("=====================================\n");
+		sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 		sender.sendMessage("Number of members:" + citizenList.toArray().length);
 		sender.sendMessage("Money:" + economy.bankBalance(factionName).balance);
 		sender.sendMessage("Leader: " + ownerName);
@@ -239,7 +322,8 @@ public class CommandExec implements CommandExecutor {
 												.getString("Owner").equals(sender.getName());
 										if (playerIsOfficer == true || playerIsLeader == true) {
 											int claimCost = plugin.getConfig().getInt("ClaimCost");
-											EconomyResponse r = economy.bankWithdraw(getPlayerFaction(player.getName()), claimCost);
+											EconomyResponse r = economy.bankWithdraw(getPlayerFaction(player.getName()),
+													claimCost);
 											if (r.transactionSuccess()) {
 												chunkList.add(playerChunkX + "," + playerChunkZ);
 												plugin.chunkSavesFile
@@ -464,10 +548,10 @@ public class CommandExec implements CommandExecutor {
 							.getString(sender.getName());
 					List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(playerFaction)
 							.getStringList("Chunks");
-					player.sendMessage(ChatColor.GREEN + "=======================================\n");
+					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					for (String s : chunkList)
 						player.sendMessage(s);
-					player.sendMessage(ChatColor.GREEN + "=======================================\n");
+					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					return true;
 				} else if (extraArguments[0].equalsIgnoreCase("cc")) {
 					int playerChunkX = player.getLocation().getChunk().getX();
@@ -476,7 +560,7 @@ public class CommandExec implements CommandExecutor {
 							+ " " + playerChunkZ);
 					return true;
 				} else if (extraArguments[0].equalsIgnoreCase("help")) {
-					player.sendMessage(ChatColor.GREEN + "=====================================================");
+					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
 					player.sendMessage(ChatColor.GOLD + "cc: Short for check chunk. Usage: /gda cc");
 					player.sendMessage(ChatColor.GOLD + "cl: Short for claim list. Usage: /gda cl");
 					player.sendMessage(
@@ -489,7 +573,7 @@ public class CommandExec implements CommandExecutor {
 							+ "leave: Use this command to leave your country. If you're the owner, the country is deleted. Usage: /gda leave");
 					player.sendMessage(ChatColor.GOLD + "help2: Shows the next page. Usage: /gda help2");
 					player.sendMessage(ChatColor.GOLD + "join: Accepts an invite. Usage: /gda join (player)");
-					player.sendMessage(ChatColor.GREEN + "=====================================================");
+					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					return true;
 				} else if (extraArguments[0].equalsIgnoreCase("leave")) {
 					if (playerIsInAFaction(player.getName()) == true) {
@@ -562,14 +646,29 @@ public class CommandExec implements CommandExecutor {
 						return true;
 					}
 				} else if (extraArguments[0].equalsIgnoreCase("help2")) {
-					// TODO: Add help2 command
+					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
+					player.sendMessage(ChatColor.GREEN
+							+ "Use /gda overclaim to overtake enemy territory. You must look at an enemy chunk...");
+
+					player.sendMessage(ChatColor.GREEN + "Use /gda denyvisa (player) to cancel a player's visa");
+					player.sendMessage(ChatColor.GREEN + "Use /gda setvisa (player) to set a player's visa");
+
+					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
+					return true;
+				} else if (extraArguments[0].equalsIgnoreCase("denyvisa")) {
+
+					return true;
+				} else if (extraArguments[0].equalsIgnoreCase("setvisa")) {
+
+					return activatePlayerVisa(sender, extraArguments, player);
 				} else if (extraArguments[0].equalsIgnoreCase("overclaim")) {
 					// TODO: finish overclaim command
 					int overclaimTimeInSeconds = plugin.getConfig().getInt("OverclaimTime");
 					final String playerName = player.getName();
 					final int playerChunkX = player.getLocation().getChunk().getX();
 					final int playerChunkZ = player.getLocation().getChunk().getZ();
-					String chunkFaction = plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks").getString(playerChunkX+","+playerChunkZ);
+					String chunkFaction = plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
+							.getString(playerChunkX + "," + playerChunkZ);
 					if (plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
 							.contains(playerChunkX + "," + playerChunkZ)) {
 						String chunkFactionName = plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
@@ -578,38 +677,38 @@ public class CommandExec implements CommandExecutor {
 							player.sendMessage(
 									StringConstants.MESSAGE_PREFIX_ERROR + "You are not a citizen of any country!");
 							return true;
-						}
-						else if (getPlayerFaction(playerName).equals(chunkFactionName)) {
+						} else if (getPlayerFaction(playerName).equals(chunkFactionName)) {
 							player.sendMessage(
 									StringConstants.MESSAGE_PREFIX_MISTAKE + " You can't overclaim your own land!");
 							return true;
 						} else {
-							if(atleastOneIsOnline(listCitizens(chunkFaction))) {
-							Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_INFO + " " + playerName
-									+ " is going to overclaim " + playerChunkX + "  " + playerChunkZ + " " + "from " + chunkFaction + "  " + "in " + overclaimTimeInSeconds + " seconds!");
-							taskIDs.put(playerName, Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-								@Override
-								public void run() {
-									// unclaim kebab
-									List<String> chunkList = plugin.getChunkSavesFile().getConfigurationSection(chunkFaction).getStringList("Chunks");
-									chunkList.remove(playerChunkX + "," + playerChunkZ);
-									plugin.getChunkSavesFile().getConfigurationSection(chunkFaction).set("Chunks",
-											chunkList);
-									plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
-											.set(playerChunkX + "," + playerChunkZ, null);
-									plugin.saveChunkSavesFile();
-									Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_INFO + "  " + playerName
-											+ " overclaimed " + playerChunkX + "  " + playerChunkZ);
-								}
-							}, (20*overclaimTimeInSeconds)));
-						}
-							else {
-								player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + " There has to be atleast one faction member online!");
+							if (atleastOneIsOnline(listCitizens(chunkFaction))) {
+								Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_INFO + " " + playerName
+										+ " is going to overclaim " + playerChunkX + "  " + playerChunkZ + " " + "from "
+										+ chunkFaction + "  " + "in " + overclaimTimeInSeconds + " seconds!");
+								taskIDs.put(playerName, Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+									@Override
+									public void run() {
+										// unclaim kebab
+										List<String> chunkList = plugin.getChunkSavesFile()
+												.getConfigurationSection(chunkFaction).getStringList("Chunks");
+										chunkList.remove(playerChunkX + "," + playerChunkZ);
+										plugin.getChunkSavesFile().getConfigurationSection(chunkFaction).set("Chunks",
+												chunkList);
+										plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
+												.set(playerChunkX + "," + playerChunkZ, null);
+										plugin.saveChunkSavesFile();
+										Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_INFO + "  " + playerName
+												+ " overclaimed " + playerChunkX + "  " + playerChunkZ);
+									}
+								}, (20 * overclaimTimeInSeconds)));
+							} else {
+								player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE
+										+ " There has to be atleast one faction member online!");
 							}
 						}
-					  }
 					}
-				    else if (extraArguments[0].equalsIgnoreCase("official")) {
+				} else if (extraArguments[0].equalsIgnoreCase("official")) {
 					String playerName = player.getName();
 					Player playerToBeGrantedOfficerStatus = (Bukkit.getServer().getPlayer(extraArguments[1]));
 					String playerToBeGrantedOfficerStatusName = playerToBeGrantedOfficerStatus.getName();
@@ -724,60 +823,66 @@ public class CommandExec implements CommandExecutor {
 					// TODO: add chunk unclaimage
 					plugin.getServer().getScheduler().runTaskTimer(plugin, new Runnable() {
 
-	@Override
-	public void run() {
-		economy = plugin.getEconomy();
-		List<String> factionList = plugin.getSecondConfig().getStringList("FactionList");
-		for (String i : factionList) {
-			int generalTax = plugin.getSecondConfig().getConfigurationSection(i).getInt("GeneralTax");
-			for (String j : listCitizens(i)) {
-				if (playerIsLeader(i, j) == true) {
-					// nothing
-					plugin.getLogger().info("did not take tax from leader");
-					;
-					continue;
+						@Override
+						public void run() {
+							economy = plugin.getEconomy();
+							List<String> factionList = plugin.getSecondConfig().getStringList("FactionList");
+							for (String i : factionList) {
+								int generalTax = plugin.getSecondConfig().getConfigurationSection(i)
+										.getInt("GeneralTax");
+								for (String j : listCitizens(i)) {
+									if (playerIsLeader(i, j) == true) {
+										// nothing
+										plugin.getLogger().info("did not take tax from leader");
+										;
+										continue;
+									}
+									EconomyResponse r = economy.withdrawPlayer(j, generalTax);
+									if (r.transactionSuccess() == true) {
+										EconomyResponse ec = economy.bankDeposit(getPlayerFaction(j), generalTax);
+										if (ec.transactionSuccess() == true) {
+											plugin.getLogger().info("did take away tax from " + j);
+										} else {
+										}
+									} else {
+										List<String> memberList = plugin.getSecondConfig()
+												.getConfigurationSection(getPlayerFaction(player.getName()))
+												.getStringList("Members");
+										memberList.remove(j);
+										plugin.getSecondConfig().getConfigurationSection(i).set("Members", memberList);
+										plugin.getSecondConfig().getConfigurationSection("Citizens").set(j, null);
+										plugin.getLogger().info("removed " + j + " from " + i);
+										plugin.saveSecondConfig();
+									}
+
+								}
+
+							}
+							// this code will be executed in the main thread
+							// each time the
+							// task runs
+						}
+					}, (20 * 10L), 20 * 10); // 10 sec delay, 10800 (or 3 hours)
+												// secs cycle
+					return true;
 				}
-				EconomyResponse r = economy.withdrawPlayer(j, generalTax);
-				if (r.transactionSuccess() == true) {
-					EconomyResponse ec = economy.bankDeposit(getPlayerFaction(j), generalTax);
-					if (ec.transactionSuccess() == true) {
-						plugin.getLogger().info("did take away tax from " + j);
-					} else {
-					}
-				} else {
-					List<String> memberList = plugin.getSecondConfig()
-							.getConfigurationSection(getPlayerFaction(player.getName())).getStringList("Members");
-					memberList.remove(j);
-					plugin.getSecondConfig().getConfigurationSection(i).set("Members", memberList);
-					plugin.getSecondConfig().getConfigurationSection("Citizens").set(j, null);
-					plugin.getLogger().info("removed " + j + " from " + i);
-					plugin.saveSecondConfig();
-				}
 
-			}
+				// TODO: Add first run parameters
+				else if (extraArguments[0].equalsIgnoreCase("treasury")) {
 
-		}
-		// this code will be executed in the main thread
-		// each time the
-		// task runs
-	}},(20*10L),20*10); // 10 sec delay, 10800 (or 3 hours)
-						// secs cycle
-	return true;}
+					Boolean playerIsLeader = plugin.getSecondConfig()
+							.getConfigurationSection(getPlayerFaction(player.getName())).getString("Owner")
+							.equals(sender.getName());
+					if (extraArguments[1].equalsIgnoreCase("balance")) {
+						economy = plugin.getEconomy();
+						double bankBalance = economy.bankBalance(getPlayerFaction(player.getName())).balance;
+						String bankBalanceToString = String.valueOf(bankBalance);
+						player.sendMessage(
+								StringConstants.MESSAGE_PREFIX_OK + " Your faction bank has " + bankBalanceToString);
+						return true;
+					} else if ((extraArguments[1].equalsIgnoreCase("deposit") &&
 
-	// TODO: Add first run parameters
-	else if(extraArguments[0].equalsIgnoreCase("treasury")){
-
-	Boolean playerIsLeader = plugin.getSecondConfig().getConfigurationSection(getPlayerFaction(player.getName()))
-			.getString("Owner").equals(sender.getName());if(extraArguments[1].equalsIgnoreCase("balance"))
-	{
-		economy = plugin.getEconomy();
-		double bankBalance = economy.bankBalance(getPlayerFaction(player.getName())).balance;
-		String bankBalanceToString = String.valueOf(bankBalance);
-		player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " Your faction bank has " + bankBalanceToString);
-		return true;
-	}else if((extraArguments[1].equalsIgnoreCase("deposit")&&
-
-	listOfficialNames(getPlayerFaction(player.getName()), player).contains(player.getName()))
+							listOfficialNames(getPlayerFaction(player.getName()), player).contains(player.getName()))
 							|| playerIsLeader == true && extraArguments[1].equalsIgnoreCase("deposit")) {
 						economy = plugin.getEconomy();
 						String amount = extraArguments[2];
@@ -825,15 +930,20 @@ public class CommandExec implements CommandExecutor {
 
 					}
 
-				}else if(extraArguments[0].equalsIgnoreCase("debugBanks"))
+				} else if (extraArguments[0].equalsIgnoreCase("debugBanks"))
 
-	{
-		List<String> bankList = economy.getBanks();
-		for (int i = 0; i < bankList.size(); i++) {
-			sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + i);
+				{
+					List<String> bankList = economy.getBanks();
+					for (int i = 0; i < bankList.size(); i++) {
+						sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + i);
+					}
+					return true;
+				}
+			}
+		} else {
+			sender.sendMessage("That's invalid you inbred fuck!");
 		}
-		return true;
+		return false;
 	}
-}}else{sender.sendMessage("That's invalid you inbred fuck!");}return false;}
 
 }

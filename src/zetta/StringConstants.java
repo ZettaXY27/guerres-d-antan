@@ -19,6 +19,7 @@ public class StringConstants extends Main {
 	public final static String MESSAGE_PREFIX_OK = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"] " + ChatColor.GREEN;
 	public final static String MESSAGE_PREFIX_INFO = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"] " + ChatColor.BLUE;
 	public final static String MESSAGE_GENERIC_ERROR = ChatColor.GOLD + "["  + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD +"] " + ChatColor.RED+"Something went wrong :( I'll try to fix it, try it again maybe?";
-	
-	
+	public final static String MESSAGE_GENERIC_LINE_GREEN = ChatColor.GREEN + "====================================================" + ChatColor.GREEN;
+	public final static String MESSAGE_GENERIC_LINE_GOLDE = ChatColor.GOLD + "=====================================================" + ChatColor.GOLD;
+	public final static String MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS = MESSAGE_PREFIX_ERROR + "Not enough arguments.";
 }
