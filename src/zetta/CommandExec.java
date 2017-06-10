@@ -123,21 +123,25 @@ public class CommandExec implements CommandExecutor {
 
 		return citizenList;
 	}
-	
 	/**
-	 * @author Inivican
-	 * Determines if a faction has at least one member online
-	 * @param factionName
-	 * 				the required faction name as a String
-	 * @return returns a boolean value
+	 * @Author ZettaX
+	 * @param playerList
+	 *        A list of players
+	 * @return Returns true if one of the players in the list is online
 	 */
-	boolean atLeastOneCitizenIsOnline(String factionName){
-		if(listCitizens(factionName).toArray().length > 0 ){
-			return true;
+	@SuppressWarnings("deprecation")
+	boolean atleastOneIsOnline(List<String> playerList) {
+		for(String i : playerList) {
+			if(plugin.getServer().getPlayerExact(i) != null) {
+				return true;
+			}
+			else {
+				continue;
+			}
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * @param player
@@ -188,7 +192,6 @@ public class CommandExec implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command command, String alias, String[] extraArguments) {
 		Player player = (Player) sender;
 		UUID ID = player.getUniqueId();
-		ChunkManagement.playerName = sender.getName();
 		if (command.getName().equalsIgnoreCase("test")) {
 			sender.sendMessage(
 					ChatColor.AQUA + "Yeah, it's working, what a miracle. Now, get your head out of your ass");
@@ -571,11 +574,17 @@ public class CommandExec implements CommandExecutor {
 							.contains(playerChunkX + "," + playerChunkZ)) {
 						String chunkFactionName = plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
 								.getString(playerChunkX + "," + playerChunkZ);
-						if (getPlayerFaction(playerName).equals(chunkFactionName)) {
+						if (getPlayerFaction(playerName) == null) {
+							player.sendMessage(
+									StringConstants.MESSAGE_PREFIX_ERROR + "You are not a citizen of any country!");
+							return true;
+						}
+						else if (getPlayerFaction(playerName).equals(chunkFactionName)) {
 							player.sendMessage(
 									StringConstants.MESSAGE_PREFIX_MISTAKE + " You can't overclaim your own land!");
 							return true;
 						} else {
+							if(atleastOneIsOnline(listCitizens(chunkFaction))) {
 							Bukkit.broadcastMessage(StringConstants.MESSAGE_PREFIX_INFO + " " + playerName
 									+ " is going to overclaim " + playerChunkX + "  " + playerChunkZ + " " + "from " + chunkFaction + "  " + "in " + overclaimTimeInSeconds + " seconds!");
 							taskIDs.put(playerName, Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
@@ -593,6 +602,10 @@ public class CommandExec implements CommandExecutor {
 											+ " overclaimed " + playerChunkX + "  " + playerChunkZ);
 								}
 							}, (20*overclaimTimeInSeconds)));
+						}
+							else {
+								player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + " There has to be atleast one faction member online!");
+							}
 						}
 					  }
 					}
