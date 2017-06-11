@@ -114,7 +114,7 @@ public class Main extends JavaPlugin {
 	// debug messages and event registering
 	public void onEnable() {
 		setupEconomy();
-		new ChunkInteraction(this);
+		new EventListener(this);
 		chunkSavesFileConfiguration = new File(getDataFolder(), "chunk_saves.yml"); // creates
 																					// the
 																					// file

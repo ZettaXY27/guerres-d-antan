@@ -69,6 +69,11 @@ public class CommandExec implements CommandExecutor {
 		String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").getString(playerName);
 		return playerFaction;
 	}
+	
+//	String final getPlayerFaction(String playerName) {
+//		String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens").getString(playerName);
+//		return playerFaction;
+//	}
 
 	boolean playerIsMember(String playerName, String factionName) {
 		boolean playerIsMember = plugin.getSecondConfig().getConfigurationSection(factionName).getStringList("Members")
@@ -199,7 +204,9 @@ public class CommandExec implements CommandExecutor {
 		
 		// Check to make sure the applicant isn't already a visa owner
 		else if (plugin.getSecondConfig().getConfigurationSection("Visas")
-				.contains(playerName + "," + factionNameOfSender) == false) {
+				.getStringList(playerName).contains(factionNameOfSender) == false) {
+			
+			
 			if( listCitizens(factionNameOfSender,true).contains(sender.getName()) == false ){
 				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "Only an authorized member of a faction can activate a visa!");
 				return false;
@@ -220,8 +227,17 @@ public class CommandExec implements CommandExecutor {
 		return true;
 	}
 
-	boolean playerDoesNotAlreadyHaveAVisaForAFaction(String playerName, String factionName) {
-
+	/**
+	 * @author Inivican
+	 * @param playerName player who does not already have a visa for a faction
+	 * @param factionName name of faction player is interacting with
+	 * @return 
+	 * @return RETURNS TRUE if the player does not possess a visa for the faction, FALSE if they do.
+	 */
+	public boolean playerDoesNotAlreadyHaveAVisaForAFaction(String playerName, String factionName) {
+		if(plugin.getSecondConfig().getConfigurationSection("Visas").getStringList(playerName).contains(factionName)==false){
+			return false;
+		}
 		return true;
 	}
 

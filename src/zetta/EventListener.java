@@ -25,18 +25,17 @@ import org.bukkit.scheduler.BukkitTask;
 
 /**
  * 
- * @author Inivican Revised by ZettaX This class is to be used for all cases of
- *         player interaction with chunks.
+ * @author ZettaX, Inivican
  * 
- *         KNOWN ISSUES: We have no means of detecting explosive damage on the
- *         land as of yet.
+ *  @note       10 June 2017
+ *              The name of this class has been changed from ChunkInteraction to EventListener.
  */
 @SuppressWarnings("unused")
-public class ChunkInteraction implements Listener {
+public class EventListener implements Listener {
 	Main plugin;
 	final static HashMap<String, BukkitTask> taskIDS = new HashMap<String, BukkitTask>();
 
-	public ChunkInteraction(Main main) {
+	public EventListener(Main main) {
 		main.getServer().getPluginManager().registerEvents(this, main);
 		plugin = main;
 	}
@@ -151,7 +150,19 @@ public class ChunkInteraction implements Listener {
 		   }
 
 	}
-
+	/**
+	 * @author Inivican
+	 * @param playerName name of player
+	 * @param factionName name of faction the player is interacting with
+	 * @return whether the player has an active visa for that faction.
+	 */
+	public boolean playerDoesNotAlreadyHaveAVisaForAFaction(String playerName, String factionName) {
+		if(plugin.getSecondConfig().getConfigurationSection("Visas").getStringList(playerName).contains(factionName)==false){
+			return false;
+		}
+		return true;
+	}
+	
 	@EventHandler
 	public void onPlayerMovement(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
@@ -170,9 +181,10 @@ public class ChunkInteraction implements Listener {
 			String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens")
 					.getString(player.getName());
 			boolean chunkPertainsToPlayersFaction = claimedChunkFactionName.equals(playerFaction);
-			if (claimedChunkFactionName == null || playerFaction == null) {
-                event.setCancelled(false);
-			} else if (chunkPertainsToPlayersFaction == false) {
+//			if (claimedChunkFactionName == null || playerFaction == null) {
+//                event.setCancelled(false);
+//			} else 
+			if (chunkPertainsToPlayersFaction == false && playerDoesNotAlreadyHaveAVisaForAFaction(player.getName(),plugin.getSecondConfig().getConfigurationSection("Citizens").getString(player.getName()))==true ) {
 				player.sendMessage(ChatColor.GOLD + "[" + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD + "]"
 						+ ChatColor.RED + "WARNING: This land is owned by " + claimedChunkFactionName + " Get out now or you WILL be shot. You have 5 seconds...");
 				taskIDS.put(player.getName(), Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
