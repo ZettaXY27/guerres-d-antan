@@ -229,15 +229,43 @@ public class CommandExec implements CommandExecutor {
 
 	/**
 	 * @author Inivican
-	 * @param playerName player who does not already have a visa for a faction
-	 * @param factionName name of faction player is interacting with
-	 * @return 
-	 * @return RETURNS TRUE if the player does not possess a visa for the faction, FALSE if they do.
+	 * @param player the player
+	 * @param arguments ExtraArguments[]
+	 * @param sender sender of the command
+	 * @return WHETHER OR NOT THE COMMAND WAS SUCCESSFUL IN EXECUTION
 	 */
-	public boolean playerDoesNotAlreadyHaveAVisaForAFaction(String playerName, String factionName) {
-		if(plugin.getSecondConfig().getConfigurationSection("Visas").getStringList(playerName).contains(factionName)==false){
+	boolean deactivatePlayerVisa(Player player, String[] arguments, CommandSender sender){
+		if(arguments.length <1){
+			sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS);
 			return false;
 		}
+		String playerName = arguments[1];
+		if (getPlayerFaction(sender.getName()) == null) {
+			sender.sendMessage(
+					StringConstants.MESSAGE_PREFIX_ERROR + "You cannot set visa when you aren't even in a faction!");
+			return false;
+		}
+		String factionNameOfSender = getPlayerFaction(sender.getName());
+		if (listCitizens(factionNameOfSender).contains(playerName) == true) {
+			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
+					+ "The individual you are trying to deactivate a visa for is a member of your faction.");
+			return false;
+		}
+		else if(plugin.getSecondConfig().getConfigurationSection("Visas")
+				.getStringList(playerName).contains(factionNameOfSender) == true){
+			
+			if( listCitizens(factionNameOfSender,true).contains(sender.getName()) == false ){
+				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "Only an authorized member of a faction can deactivate a visa!");
+				return false;
+			}
+			//continue here...
+			
+			
+			
+			
+			
+		}
+		
 		return true;
 	}
 
