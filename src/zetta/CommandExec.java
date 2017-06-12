@@ -258,9 +258,14 @@ public class CommandExec implements CommandExecutor {
 				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "Only an authorized member of a faction can deactivate a visa!");
 				return false;
 			}
-			//continue here...
 			
-			
+			List<String> visaList = plugin.getSecondConfig().getConfigurationSection(getPlayerFaction(playerName)).getStringList("Visas");
+			plugin.saveSecondConfig();
+			sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK+playerName+" no longer has a visa for your faction "+factionNameOfSender+"!");
+			visaList.remove(playerName);
+			plugin.getSecondConfig().getConfigurationSection(factionNameOfSender).set("Visas", visaList);
+			plugin.getSecondConfig().getConfigurationSection("Visas").set(playerName, null);
+			plugin.saveSecondConfig();
 			
 			
 			
@@ -700,7 +705,7 @@ public class CommandExec implements CommandExecutor {
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					return true;
 				} else if (extraArguments[0].equalsIgnoreCase("denyvisa")) {
-
+					deactivatePlayerVisa(player, extraArguments, sender);
 					return true;
 				} else if (extraArguments[0].equalsIgnoreCase("setvisa")) {
 
