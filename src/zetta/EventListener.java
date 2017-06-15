@@ -20,8 +20,12 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.kitteh.tag.AsyncPlayerReceiveNameTagEvent;
+
 
 /**
  * 
@@ -39,13 +43,24 @@ public class EventListener implements Listener {
 		main.getServer().getPluginManager().registerEvents(this, main);
 		plugin = main;
 	}
+	@EventHandler
+	public void onNameTag(AsyncPlayerReceiveNameTagEvent event) {
+	if (event.getNamedPlayer().getName().equals("ZettaX")) {
+	event.setTag(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GDAGod" + ChatColor.GOLD +"] " + ChatColor.GREEN + "ZettaX");
+	return;
+	}
+	else {
+		event.setTag("");
+	}
+	}
+
 
 	/**
 	 * 
 	 * @param event
 	 *            the event of a block being broken
 	 */
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
 		Block blockBeingBroken = event.getBlock();
@@ -81,6 +96,18 @@ public class EventListener implements Listener {
 		// went wrong! :( Inform ZettaX or Inivican immediately! (Error code
 		// 00xCI001");
 		// }
+	}
+	@EventHandler
+	public void onPlayerTeleport(PlayerTeleportEvent event) {
+		Player player = event.getPlayer();
+		String playerName = player.getName();
+		if (CommandExec.taskIDs.containsKey(playerName) == true) {
+			event.setCancelled(true);
+			plugin.getServer().getScheduler().cancelTask(CommandExec.taskIDs.get(player.getName()).getTaskId());
+			CommandExec.taskIDs.remove(playerName);
+			Bukkit.broadcastMessage(
+					StringConstants.MESSAGE_PREFIX_INFO + " " + playerName + "  " + "tried to escape!");
+		}
 	}
 
 	@EventHandler
@@ -133,11 +160,18 @@ public class EventListener implements Listener {
 			Player player = event.getEntity();
 			String playerName = player.getName();
 			int taskID = CommandExec.taskIDs.get(playerName).getTaskId();
+			int TPtaskID = CommandExec.TPtaskIDs.get(playerName).getTaskId();
+			if (CommandExec.TPtaskIDs.containsKey(playerName)) {
+				plugin.getServer().getScheduler().cancelTask(CommandExec.TPtaskIDs.get(player.getName()).getTaskId());
+				CommandExec.TPtaskIDs.remove(playerName);
+				Bukkit.broadcastMessage(
+						StringConstants.MESSAGE_PREFIX_INFO + " " + playerName + "  " + " could not teleport");
+			}
 			if (CommandExec.taskIDs.containsKey(playerName) == true) {
 				plugin.getServer().getScheduler().cancelTask(CommandExec.taskIDs.get(player.getName()).getTaskId());
 				CommandExec.taskIDs.remove(playerName);
 				Bukkit.broadcastMessage(
-						StringConstants.MESSAGE_PREFIX_INFO + " " + playerName + "  " + "could not overclaim!");
+						StringConstants.MESSAGE_PREFIX_INFO + " " + playerName + "  " + " could not overclaim");
 			}
 		} catch (NullPointerException e) {
 			// don't cringe, just get used to NPEs in this thing, there will be
@@ -166,6 +200,11 @@ public class EventListener implements Listener {
 	@EventHandler
 	public void onPlayerMovement(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
+		if(CommandExec.TPtaskIDs.containsKey(player.getName()) && event.getFrom().getBlockX() != event.getTo().getBlockX() || CommandExec.TPtaskIDs.containsKey(player.getName()) && event.getFrom().getBlockY() != event.getTo().getBlockY()) {
+			plugin.getServer().getScheduler().cancelTask(CommandExec.TPtaskIDs.get(player.getName()).getTaskId());
+			CommandExec.TPtaskIDs.remove(player.getName());
+            player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + " You can't move while teleporting!");
+		}
 		 if(taskIDS.containsKey(player.getName())) {
 		     taskIDS.remove(player.getName());
 		     taskIDS.clear();

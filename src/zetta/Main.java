@@ -115,14 +115,7 @@ public class Main extends JavaPlugin {
 	public void onEnable() {
 		setupEconomy();
 		new EventListener(this);
-		chunkSavesFileConfiguration = new File(getDataFolder(), "chunk_saves.yml"); // creates
-																					// the
-																					// file
-																					// under
-																					// a
-																					// folder
-																					// called
-																					// guerresD_antan
+		chunkSavesFileConfiguration = new File(getDataFolder(), "chunk_saves.yml"); 
 		chunkSavesFile = YamlConfiguration.loadConfiguration(chunkSavesFileConfiguration);
 		saveChunkSavesFile();
 		getSecondConfig();

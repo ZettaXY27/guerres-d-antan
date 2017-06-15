@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -12,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -26,6 +28,7 @@ import net.milkbowl.vault.economy.EconomyResponse;;
 public class CommandExec implements CommandExecutor {
 	// Variable declaration field
 	final static HashMap<String, BukkitTask> taskIDs = new HashMap<String, BukkitTask>();
+	final static HashMap<String, BukkitTask> TPtaskIDs = new HashMap<String, BukkitTask>();
 	Main plugin;
 	Economy economy = null;
 	ChunkManagement chunkManagement;
@@ -237,34 +240,33 @@ public class CommandExec implements CommandExecutor {
 	 * @param playerChunkZ
 	 * @return whether or not the claimed chunk is claimed
 	 */
-	boolean detectWhetherChunkIsClaimed(int playerChunkX, int playerChunkZ){
-		
-		if(plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
-		.contains(playerChunkX + "," + playerChunkZ))
+	boolean detectWhetherChunkIsClaimed(int playerChunkX, int playerChunkZ) {
+
+		if (plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
+				.contains(playerChunkX + "," + playerChunkZ))
 			return true;
 		return false;
 	}
-	
+
 	/**
 	 * @author Inivican
-	 * @param player 
+	 * @param player
 	 * @return whether or not the chunk is claimed
 	 */
-	boolean detectWhetherChunkIsClaimed(Player player){
+	boolean detectWhetherChunkIsClaimed(Player player) {
 		int playerChunkX = player.getLocation().getChunk().getX();
 		int playerChunkZ = player.getLocation().getChunk().getZ();
-		if(plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
+		if (plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
 				.contains(playerChunkX + "," + playerChunkZ))
-					return true;
+			return true;
 		return false;
 	}
-	
-//	List<String> getNationsInArea(){
-//		List<String> listOfNations = ;
-//		return listOfNations;
-//	}
-	
-	
+
+	// List<String> getNationsInArea(){
+	// List<String> listOfNations = ;
+	// return listOfNations;
+	// }
+
 	/**
 	 * @author Inivican
 	 * @desc shows a general "map" of the chunks in the area
@@ -272,31 +274,32 @@ public class CommandExec implements CommandExecutor {
 	 * @param player
 	 * @return Hether the command completed successfully
 	 */
-	boolean showChunkMap(CommandSender sender, Player player){
+	boolean showChunkMap(CommandSender sender, Player player) {
 		int startChunkX = player.getLocation().getChunk().getX();
 		int startChunkZ = player.getLocation().getChunk().getZ();
 		int playerChunkX = startChunkX;
 		int playerChunkZ = startChunkZ;
 		short numberOfFactionClaimsInThisArea = 0;
 		String chatString = "";
-		
-		for(int k = 0;k<20;k++){
-			for(int i = 0;i<50;i++){
-				for(int j = 0;i<50;i++){
-					if(detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ) && (player.getLocation().getChunk().getZ() == playerChunkZ && player.getLocation().getChunk().getZ() == playerChunkX)){
+
+		for (int k = 0; k < 20; k++) {
+			for (int i = 0; i < 50; i++) {
+				for (int j = 0; i < 50; i++) {
+					if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)
+							&& (player.getLocation().getChunk().getZ() == playerChunkZ
+									&& player.getLocation().getChunk().getZ() == playerChunkX)) {
 						chatString += ChatColor.DARK_GRAY + "#";
-						numberOfFactionClaimsInThisArea ++;
-					}
-					else if(detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)){
-						chatString+= ChatColor.GREEN + "#";
-						numberOfFactionClaimsInThisArea ++;
-					}else if(detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)==false && (startChunkX == playerChunkZ && startChunkZ == playerChunkX)){
-						chatString+=ChatColor.WHITE + "@";
-					}
-					else if(detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)==false){
+						numberOfFactionClaimsInThisArea++;
+					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)) {
+						chatString += ChatColor.GREEN + "#";
+						numberOfFactionClaimsInThisArea++;
+					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ) == false
+							&& (startChunkX == playerChunkZ && startChunkZ == playerChunkX)) {
+						chatString += ChatColor.WHITE + "@";
+					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ) == false) {
 						chatString += ChatColor.WHITE + "/";
 					}
-					
+
 					playerChunkX++;
 					playerChunkZ++;
 				}
@@ -304,13 +307,12 @@ public class CommandExec implements CommandExecutor {
 			sender.sendMessage(chatString);
 			chatString = "";
 		}
-		sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO+"Number of faction claims in this area:"+numberOfFactionClaimsInThisArea);
-		
+		sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + "Number of faction claims in this area:"
+				+ numberOfFactionClaimsInThisArea);
+
 		return true;
 	}
-	
-	
-	
+
 	/**
 	 * @author Inivican
 	 * @param player
@@ -575,7 +577,7 @@ public class CommandExec implements CommandExecutor {
 
 					// command /gda map
 				} else if (extraArguments[0].equalsIgnoreCase("map")) {
-					
+
 					return showChunkMap(sender, player);
 				} else if (extraArguments[0].equalsIgnoreCase("create")) {
 					if (extraArguments.length == 0) {
@@ -994,6 +996,24 @@ public class CommandExec implements CommandExecutor {
 									}
 
 								}
+								List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(i)
+										.getStringList("Chunks");
+								double claimUpkeepCost = plugin.getConfig().getDouble("ClaimUpkeep") * chunkList.size();
+								EconomyResponse ec = economy.bankWithdraw(i, claimUpkeepCost);
+								if (ec.transactionSuccess()) {
+									plugin.getLogger().info("did take away " + claimUpkeepCost + " from " + i);
+								} else {
+									Random rand = new Random();
+								    final int randomIndex = rand.nextInt(chunkList.size());
+									plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
+									.set(chunkList.get(randomIndex), null);
+								    plugin.getLogger().info("did take away " + chunkList.get(randomIndex) + " from " + i);
+								    chunkList.remove(randomIndex);
+								    plugin.chunkSavesFile
+									.getConfigurationSection(i)
+									.set("Chunks", chunkList);
+									plugin.saveChunkSavesFile();
+								}
 
 							}
 							// this code will be executed in the main thread
@@ -1003,6 +1023,93 @@ public class CommandExec implements CommandExecutor {
 					}, (20 * 10L), 20 * 10); // 10 sec delay, 10800 (or 3 hours)
 												// secs cycle
 					return true;
+				} else if (extraArguments[0].equalsIgnoreCase("nations")) {
+					List<String> factionList = plugin.getSecondConfig().getStringList("FactionList");
+					if (factionList.size() < 20) {
+						player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " Nation list");
+						for (String f : factionList) {
+							player.sendMessage(ChatColor.GREEN + " " + f);
+						}
+						return true;
+					}
+					if (extraArguments[1].equalsIgnoreCase("2") && factionList.size() > 20) {
+						for (int i = 20; i < factionList.size(); i++) {
+							player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " Nation List 2");
+							player.sendMessage(ChatColor.GREEN + " " + i);
+
+						}
+
+					}
+					else if (factionList.size() > 20) {
+						player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + " Use /gda nations 2 for next page");
+						return true;
+					}
+
+				} else if (extraArguments[0].equalsIgnoreCase("capital")) {
+					if (playerIsInAFaction(player.getName()) == false) {
+						player.sendMessage(
+								StringConstants.MESSAGE_PREFIX_ERROR + "You are not a citizen of any country!");
+						return true;
+					}
+					else if (extraArguments[1].equalsIgnoreCase("tp")) {
+						player.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + " You will teleport in 10 seconds...");
+						TPtaskIDs.put(player.getName(), Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+
+							@Override
+							public void run() {
+								String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens")
+										.getString(player.getName());
+								World w = Bukkit.getServer().getWorld(plugin.getChunkSavesFile().getConfigurationSection(playerFaction).getString("capitalLocation.World"));
+								double x = plugin.getChunkSavesFile().getConfigurationSection(playerFaction).getDouble("capitalLocation.X");
+								double y = plugin.getChunkSavesFile().getConfigurationSection(playerFaction).getDouble("capitalLocation.Y");
+								double z = plugin.getChunkSavesFile().getConfigurationSection(playerFaction).getDouble("capitalLocation.Z");
+								player.teleport(new Location(w, x, y, z));
+								player.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + " You teleported to your capital!");
+								CommandExec.TPtaskIDs.remove(player.getName());
+							}
+						
+						}, 20 * 10));
+						return true;
+					}
+					else if (extraArguments[1].equalsIgnoreCase("set")) {
+						int playerChunkX = player.getLocation().getChunk().getX();
+						int playerChunkZ = player.getLocation().getChunk().getZ();
+						Location playerLoc = player.getLocation();
+						String claimedChunkFactionName = plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
+								.getString(playerChunkX + "," + playerChunkZ);
+						String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens")
+								.getString(player.getName());
+						Boolean playerIsLeader = plugin.getSecondConfig()
+								.getConfigurationSection(getPlayerFaction(player.getName())).getString("Owner")
+								.equals(sender.getName());
+						Location capitalLoc = player.getLocation();
+							if (playerIsLeader == true) {
+							boolean chunkPertainsToPlayersFaction = claimedChunkFactionName.equals(playerFaction);
+							if (chunkPertainsToPlayersFaction == true) {						
+										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("Capital",
+												playerChunkX + "," + playerChunkZ);
+										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.World" , capitalLoc.getWorld().getName());
+										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.X" , capitalLoc.getX());
+										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.Y" , capitalLoc.getY());
+										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.Z" , capitalLoc.getZ());
+										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.Yaw" , capitalLoc.getYaw());
+										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.Pitch" , capitalLoc.getPitch());
+										plugin.saveChunkSavesFile();
+										player.sendMessage(
+												StringConstants.MESSAGE_PREFIX_INFO + " You set your capital chunk");
+										return true;
+								 
+							} else {
+								player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE
+										+ " Your nation does not own this chunk!");
+								return true;
+							}
+						} else {
+							player.sendMessage(
+									StringConstants.MESSAGE_PREFIX_MISTAKE + " You have to be the leader to do this!");
+							return true;
+						}
+					}
 				}
 
 				// TODO: Add first run parameters
