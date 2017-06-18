@@ -339,7 +339,7 @@ public class CommandExec implements CommandExecutor {
 			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
 					+ "The individual you are trying to deactivate a visa for is a member of your faction.");
 			return false;
-		} else if (plugin.getSecondConfig().getConfigurationSection("Visas").getStringList(playerName)
+		} else if (plugin.getSecondConfig().getConfigurationSection("Visas").getString(playerName)
 				.contains(factionNameOfSender) == true) {
 
 			if (listCitizens(factionNameOfSender, true).contains(sender.getName()) == false) {
@@ -347,16 +347,11 @@ public class CommandExec implements CommandExecutor {
 						+ "Only an authorized member of a faction can deactivate a visa!");
 				return false;
 			}
-
-			List<String> visaList = plugin.getSecondConfig().getConfigurationSection(getPlayerFaction(playerName))
-					.getStringList("Visas");
-			plugin.saveSecondConfig();
 			sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + playerName
-					+ " no longer has a visa for your faction " + factionNameOfSender + "!");
-			visaList.remove(playerName);
-			plugin.getSecondConfig().getConfigurationSection(factionNameOfSender).set("Visas", visaList);
+					+ " no longer has a visa for your faction " + factionNameOfSender + "!");	
 			plugin.getSecondConfig().getConfigurationSection("Visas").set(playerName, null);
 			plugin.saveSecondConfig();
+			return true;
 
 		}
 

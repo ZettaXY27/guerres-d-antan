@@ -43,16 +43,16 @@ public class EventListener implements Listener {
 		main.getServer().getPluginManager().registerEvents(this, main);
 		plugin = main;
 	}
-	@EventHandler
-	public void onNameTag(AsyncPlayerReceiveNameTagEvent event) {
-	if (event.getNamedPlayer().getName().equals("ZettaX")) {
-	event.setTag(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GDAGod" + ChatColor.GOLD +"] " + ChatColor.GREEN + "ZettaX");
-	return;
-	}
-	else {
-		event.setTag("");
-	}
-	}
+//	@EventHandler
+//	public void onNameTag(AsyncPlayerReceiveNameTagEvent event) {
+//	if (event.getNamedPlayer().getName().equals("ZettaX")) {
+//	event.setTag(ChatColor.GOLD + "["  + ChatColor.YELLOW + "GDAGod" + ChatColor.GOLD +"] " + ChatColor.GREEN + "ZettaX");
+//	return;
+//	}
+//	else {
+//		event.setTag("");
+//	}
+//	}
 
 
 	/**
@@ -82,6 +82,7 @@ public class EventListener implements Listener {
 				player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + "This land is owned by " + claimedChunkFactionName);
 			}
 		} catch (NullPointerException npe) {
+
 			// It's fine if chunkPertainsToPlayersFaction throws an NPE
 		}
 
@@ -160,18 +161,18 @@ public class EventListener implements Listener {
 			Player player = event.getEntity();
 			String playerName = player.getName();
 			int taskID = CommandExec.taskIDs.get(playerName).getTaskId();
+			if (CommandExec.taskIDs.containsKey(playerName) == true) {
+				Bukkit.broadcastMessage(
+						StringConstants.MESSAGE_PREFIX_INFO + " " + playerName + "  " + " could not overclaim");
+				plugin.getServer().getScheduler().cancelTask(CommandExec.taskIDs.get(player.getName()).getTaskId());
+				CommandExec.taskIDs.remove(playerName);
+			}
 			int TPtaskID = CommandExec.TPtaskIDs.get(playerName).getTaskId();
-			if (CommandExec.TPtaskIDs.containsKey(playerName)) {
+		    if (CommandExec.TPtaskIDs.containsKey(playerName)) {
 				plugin.getServer().getScheduler().cancelTask(CommandExec.TPtaskIDs.get(player.getName()).getTaskId());
 				CommandExec.TPtaskIDs.remove(playerName);
 				Bukkit.broadcastMessage(
 						StringConstants.MESSAGE_PREFIX_INFO + " " + playerName + "  " + " could not teleport");
-			}
-			if (CommandExec.taskIDs.containsKey(playerName) == true) {
-				plugin.getServer().getScheduler().cancelTask(CommandExec.taskIDs.get(player.getName()).getTaskId());
-				CommandExec.taskIDs.remove(playerName);
-				Bukkit.broadcastMessage(
-						StringConstants.MESSAGE_PREFIX_INFO + " " + playerName + "  " + " could not overclaim");
 			}
 		} catch (NullPointerException e) {
 			// don't cringe, just get used to NPEs in this thing, there will be
@@ -191,7 +192,7 @@ public class EventListener implements Listener {
 	 * @return whether the player has an active visa for that faction.
 	 */
 	public boolean playerDoesNotAlreadyHaveAVisaForAFaction(String playerName, String factionName) {
-		if(plugin.getSecondConfig().getConfigurationSection("Visas").getStringList(playerName).contains(factionName)==false){
+		if(plugin.getSecondConfig().getConfigurationSection("Visas").getString(playerName).equals(factionName)==false){
 			return false;
 		}
 		return true;
@@ -200,16 +201,6 @@ public class EventListener implements Listener {
 	@EventHandler
 	public void onPlayerMovement(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
-		if(CommandExec.TPtaskIDs.containsKey(player.getName()) && event.getFrom().getBlockX() != event.getTo().getBlockX() || CommandExec.TPtaskIDs.containsKey(player.getName()) && event.getFrom().getBlockY() != event.getTo().getBlockY()) {
-			plugin.getServer().getScheduler().cancelTask(CommandExec.TPtaskIDs.get(player.getName()).getTaskId());
-			CommandExec.TPtaskIDs.remove(player.getName());
-            player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + " You can't move while teleporting!");
-		}
-		 if(taskIDS.containsKey(player.getName())) {
-		     taskIDS.remove(player.getName());
-		     taskIDS.clear();
-			 return;
-			 }
 		try {
 			final int playerChunkX = event.getPlayer().getLocation().getChunk().getX();
 			final int playerChunkZ = event.getPlayer().getLocation().getChunk().getZ();
@@ -223,7 +214,7 @@ public class EventListener implements Listener {
 //			if (claimedChunkFactionName == null || playerFaction == null) {
 //                event.setCancelled(false);
 //			} else 
-			if (chunkPertainsToPlayersFaction == false && playerDoesNotAlreadyHaveAVisaForAFaction(player.getName(),plugin.getSecondConfig().getConfigurationSection("Citizens").getString(player.getName()))==true ) {
+			if (chunkPertainsToPlayersFaction == false /*&& playerDoesNotAlreadyHaveAVisaForAFaction(player.getName(),plugin.getSecondConfig().getConfigurationSection("Citizens").getString(player.getName()))==true*/ ) {
 				player.sendMessage(ChatColor.GOLD + "[" + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD + "]"
 						+ ChatColor.RED + "WARNING: This land is owned by " + claimedChunkFactionName + " Get out now or you WILL be shot. You have 5 seconds...");
 				taskIDS.put(player.getName(), Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
@@ -257,7 +248,16 @@ public class EventListener implements Listener {
 		} catch (NullPointerException npe) {
 			// Ignore null bointer exbection
 		}
-		return;
-
+		if(CommandExec.TPtaskIDs.containsKey(player.getName()) && event.getFrom().getBlockX() != event.getTo().getBlockX() || CommandExec.TPtaskIDs.containsKey(player.getName()) && event.getFrom().getBlockY() != event.getTo().getBlockY()) {
+			plugin.getServer().getScheduler().cancelTask(CommandExec.TPtaskIDs.get(player.getName()).getTaskId());
+			CommandExec.TPtaskIDs.remove(player.getName());
+            player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + " You can't move while teleporting!");
+		}
+		 if(taskIDS.containsKey(player.getName())) {
+		     taskIDS.remove(player.getName());
+		     taskIDS.clear();
+			 return;
+			 }
+		
 	}
 }
