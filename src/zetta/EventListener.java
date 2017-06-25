@@ -85,18 +85,6 @@ public class EventListener implements Listener {
 
 			// It's fine if chunkPertainsToPlayersFaction throws an NPE
 		}
-
-		// if(chunkSavesRetrieval.getChunkSavesFile().contains("ClaimedChunks"))
-		// {
-		// chunkSavesRetrieval.getChunkSavesFile().getConfigurationSection("ClaimedChunks").contains(blockChunkX+","+blockChunkZ)
-		// == true working piece of code
-		// }
-		// else {
-		// player.sendMessage(ChatColor.GOLD + "[" + ChatColor.YELLOW +
-		// "GuerresD'Antan" + ChatColor.GOLD +"]" + ChatColor.RED + "Something
-		// went wrong! :( Inform ZettaX or Inivican immediately! (Error code
-		// 00xCI001");
-		// }
 	}
 	@EventHandler
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
@@ -192,7 +180,7 @@ public class EventListener implements Listener {
 	 * @return whether the player has an active visa for that faction.
 	 */
 	public boolean playerDoesNotAlreadyHaveAVisaForAFaction(String playerName, String factionName) {
-		if(plugin.getSecondConfig().getConfigurationSection("Visas").getString(playerName).equals(factionName)==false){
+		if(plugin.getSecondConfig().getConfigurationSection(factionName).getStringList("Visas").contains(playerName)==false){
 			return false;
 		}
 		return true;
@@ -214,7 +202,7 @@ public class EventListener implements Listener {
 //			if (claimedChunkFactionName == null || playerFaction == null) {
 //                event.setCancelled(false);
 //			} else 
-			if (chunkPertainsToPlayersFaction == false /*&& playerDoesNotAlreadyHaveAVisaForAFaction(player.getName(),plugin.getSecondConfig().getConfigurationSection("Citizens").getString(player.getName()))==true*/ ) {
+			if (chunkPertainsToPlayersFaction == false && playerDoesNotAlreadyHaveAVisaForAFaction(player.getName(), claimedChunkFactionName) == false) {
 				player.sendMessage(ChatColor.GOLD + "[" + ChatColor.YELLOW + "GuerresD'Antan" + ChatColor.GOLD + "]"
 						+ ChatColor.RED + "WARNING: This land is owned by " + claimedChunkFactionName + " Get out now or you WILL be shot. You have 5 seconds...");
 				taskIDS.put(player.getName(), Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {

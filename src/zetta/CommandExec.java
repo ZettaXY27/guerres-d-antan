@@ -169,72 +169,6 @@ public class CommandExec implements CommandExecutor {
 	}
 
 	/**
-	 * FOR THE COMMAND /gda setvisa (playername) SETVISA / ACTIVATE VISA
-	 * 
-	 * @author Inivican
-	 * @param player
-	 *            The minecraft player
-	 * @param sender
-	 *            The sender of the command
-	 * @param arguments
-	 *            The extraArguments[]
-	 * @return Whether or not the command completes successfully
-	 * @note It is really getting hard to navigate this class file to find
-	 *       methods.
-	 */
-	boolean activatePlayerVisa(CommandSender sender, String[] arguments, Player player) {
-		if (arguments.length < 1) {
-			sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS);
-			return false;
-		}
-		String playerName = arguments[1];
-		if (getPlayerFaction(sender.getName()) == null) {
-			sender.sendMessage(
-					StringConstants.MESSAGE_PREFIX_ERROR + "You cannot set visa when you aren't even in a faction!");
-			return false;
-		}
-		String factionNameOfSender = getPlayerFaction(sender.getName());
-
-		if (listCitizens(factionNameOfSender).contains(playerName) == true) {
-			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
-					+ "The individual you are trying to set a visa for is a member of your faction already.");
-			return false;
-		} else if (plugin.getSecondConfig().getConfigurationSection("Visas") == null) {
-			plugin.getSecondConfig().createSection("Visas");
-			plugin.saveSecondConfig();
-			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
-					+ "Created visas section as there hadn't been one in your secondConfig.yml file.");
-			return true;
-		}
-
-		// Check to make sure the applicant isn't already a visa owner
-		else if (plugin.getSecondConfig().getConfigurationSection("Visas").getStringList(playerName)
-				.contains(factionNameOfSender) == false) {
-
-			if (listCitizens(factionNameOfSender, true).contains(sender.getName()) == false) {
-				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
-						+ "Only an authorized member of a faction can activate a visa!");
-				return false;
-			}
-			List<String> visaListForFaction = plugin.getSecondConfig()
-					.getConfigurationSection(getPlayerFaction(playerName)).getStringList("Visas");
-			plugin.saveSecondConfig();
-			visaListForFaction.add(playerName + "," + factionNameOfSender);
-			plugin.getSecondConfig().getConfigurationSection("Visas").set(playerName, factionNameOfSender);
-			plugin.saveSecondConfig();
-			sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "Granted visa to " + playerName + " for "
-					+ factionNameOfSender);
-
-		} else {
-			player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
-					+ "The invidual you are tring to set a visa for already has a visa for your faction.");
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
 	 * @author Inivican
 	 * @param playerChunkX
 	 * @param playerChunkZ
@@ -272,7 +206,7 @@ public class CommandExec implements CommandExecutor {
 	 * @desc shows a general "map" of the chunks in the area
 	 * @param sender
 	 * @param player
-	 * @return Hether the command completed successfully
+	 * @return Whether the command completed successfully
 	 */
 	boolean showChunkMap(CommandSender sender, Player player) {
 		int startChunkX = player.getLocation().getChunk().getX();
@@ -281,7 +215,6 @@ public class CommandExec implements CommandExecutor {
 		int playerChunkZ = startChunkZ;
 		short numberOfFactionClaimsInThisArea = 0;
 		String chatString = "";
-
 		for (int k = 0; k < 20; k++) {
 			for (int i = 0; i < 50; i++) {
 				for (int j = 0; i < 50; i++) {
@@ -314,6 +247,75 @@ public class CommandExec implements CommandExecutor {
 	}
 
 	/**
+	 * FOR THE COMMAND /gda setvisa (playername) SETVISA / ACTIVATE VISA
+	 * 
+	 * @author Inivican
+	 * @param player
+	 *            The minecraft player
+	 * @param sender
+	 *            The sender of the command
+	 * @param arguments
+	 *            The extraArguments[]
+	 * @return Whether or not the command completes successfully
+	 * @note It is really getting hard to navigate this class file to find
+	 *       methods.
+	 */
+	boolean activatePlayerVisa(CommandSender sender, String[] arguments, Player player, String playerFaction) {
+		if (arguments.length < 1) {
+			sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS);
+			return false;
+		}
+		String playerName = arguments[1];
+		playerFaction = getPlayerFaction(sender.getName());
+		if (playerFaction == null) {
+			sender.sendMessage(
+					StringConstants.MESSAGE_PREFIX_ERROR + "You cannot set visa when you aren't even in a faction!");
+			return false;
+		}
+		String factionNameOfSender = playerFaction;
+		if (listCitizens(factionNameOfSender).contains(playerName) == true) {
+			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
+					+ "The individual you are trying to set a visa for is a member of your faction already.");
+			return false;
+			// next line will throw npe lol
+		} else if (plugin.getSecondConfig().getConfigurationSection(factionNameOfSender)
+				.getStringList("Visas") == null) {
+			List<String> visaList = plugin.getSecondConfig().getConfigurationSection(factionNameOfSender)
+					.getStringList("Visas");
+			plugin.getSecondConfig().getConfigurationSection(factionNameOfSender).set("Visas", visaList);
+			plugin.saveSecondConfig();
+			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
+					+ "Created visas section as there hadn't been one in your secondConfig.yml file.");
+			return true;
+		}
+
+		// Check to make sure the applicant isn't already a visa owner
+		else if (plugin.getSecondConfig().getConfigurationSection(playerFaction).getStringList("Visas")
+				.contains(playerName) == false) {
+			if (listCitizens(factionNameOfSender, true).contains(sender.getName()) == false) {
+				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
+						+ "Only an authorized member of a faction can activate a visa!");
+				return false;
+			}
+			List<String> visaList = plugin.getSecondConfig().getConfigurationSection(factionNameOfSender)
+					.getStringList("Visas");
+			plugin.saveSecondConfig();
+			visaList.add(playerName);
+			plugin.getSecondConfig().getConfigurationSection(factionNameOfSender).set("Visas", visaList);
+			plugin.saveSecondConfig();
+			sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "Granted visa to " + playerName + " for "
+					+ factionNameOfSender);
+
+		} else {
+			player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
+					+ "The invidual you are tring to set a visa for already has a visa for your faction.");
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * @author Inivican
 	 * @param player
 	 *            the player
@@ -340,15 +342,14 @@ public class CommandExec implements CommandExecutor {
 					+ "The individual you are trying to deactivate a visa for is a member of your faction.");
 			return false;
 		} else if (plugin.getSecondConfig().getConfigurationSection("Visas").getString(playerName)
-				.contains(factionNameOfSender) == true) {
-
+				.equals(factionNameOfSender) == true) {
 			if (listCitizens(factionNameOfSender, true).contains(sender.getName()) == false) {
 				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
 						+ "Only an authorized member of a faction can deactivate a visa!");
 				return false;
 			}
 			sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + playerName
-					+ " no longer has a visa for your faction " + factionNameOfSender + "!");	
+					+ " no longer has a visa for your faction " + factionNameOfSender + "!");
 			plugin.getSecondConfig().getConfigurationSection("Visas").set(playerName, null);
 			plugin.saveSecondConfig();
 			return true;
@@ -572,7 +573,6 @@ public class CommandExec implements CommandExecutor {
 
 					// command /gda map
 				} else if (extraArguments[0].equalsIgnoreCase("map")) {
-
 					return showChunkMap(sender, player);
 				} else if (extraArguments[0].equalsIgnoreCase("create")) {
 					if (extraArguments.length == 0) {
@@ -794,8 +794,7 @@ public class CommandExec implements CommandExecutor {
 					deactivatePlayerVisa(player, extraArguments, sender);
 					return true;
 				} else if (extraArguments[0].equalsIgnoreCase("setvisa")) {
-
-					return activatePlayerVisa(sender, extraArguments, player);
+					return activatePlayerVisa(sender, extraArguments, player, getPlayerFaction(player.getName()));
 				} else if (extraArguments[0].equalsIgnoreCase("overclaim")) {
 					// TODO: finish overclaim command
 					int overclaimTimeInSeconds = plugin.getConfig().getInt("OverclaimTime");
@@ -999,14 +998,13 @@ public class CommandExec implements CommandExecutor {
 									plugin.getLogger().info("did take away " + claimUpkeepCost + " from " + i);
 								} else {
 									Random rand = new Random();
-								    final int randomIndex = rand.nextInt(chunkList.size());
+									final int randomIndex = rand.nextInt(chunkList.size());
 									plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
-									.set(chunkList.get(randomIndex), null);
-								    plugin.getLogger().info("did take away " + chunkList.get(randomIndex) + " from " + i);
-								    chunkList.remove(randomIndex);
-								    plugin.chunkSavesFile
-									.getConfigurationSection(i)
-									.set("Chunks", chunkList);
+											.set(chunkList.get(randomIndex), null);
+									plugin.getLogger()
+											.info("did take away " + chunkList.get(randomIndex) + " from " + i);
+									chunkList.remove(randomIndex);
+									plugin.chunkSavesFile.getConfigurationSection(i).set("Chunks", chunkList);
 									plugin.saveChunkSavesFile();
 								}
 
@@ -1034,8 +1032,7 @@ public class CommandExec implements CommandExecutor {
 
 						}
 
-					}
-					else if (factionList.size() > 20) {
+					} else if (factionList.size() > 20) {
 						player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + " Use /gda nations 2 for next page");
 						return true;
 					}
@@ -1045,8 +1042,7 @@ public class CommandExec implements CommandExecutor {
 						player.sendMessage(
 								StringConstants.MESSAGE_PREFIX_ERROR + "You are not a citizen of any country!");
 						return true;
-					}
-					else if (extraArguments[1].equalsIgnoreCase("tp")) {
+					} else if (extraArguments[1].equalsIgnoreCase("tp")) {
 						player.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + " You will teleport in 10 seconds...");
 						TPtaskIDs.put(player.getName(), Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
 
@@ -1054,46 +1050,55 @@ public class CommandExec implements CommandExecutor {
 							public void run() {
 								String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens")
 										.getString(player.getName());
-								World w = Bukkit.getServer().getWorld(plugin.getChunkSavesFile().getConfigurationSection(playerFaction).getString("capitalLocation.World"));
-								double x = plugin.getChunkSavesFile().getConfigurationSection(playerFaction).getDouble("capitalLocation.X");
-								double y = plugin.getChunkSavesFile().getConfigurationSection(playerFaction).getDouble("capitalLocation.Y");
-								double z = plugin.getChunkSavesFile().getConfigurationSection(playerFaction).getDouble("capitalLocation.Z");
+								World w = Bukkit.getServer().getWorld(plugin.getChunkSavesFile()
+										.getConfigurationSection(playerFaction).getString("capitalLocation.World"));
+								double x = plugin.getChunkSavesFile().getConfigurationSection(playerFaction)
+										.getDouble("capitalLocation.X");
+								double y = plugin.getChunkSavesFile().getConfigurationSection(playerFaction)
+										.getDouble("capitalLocation.Y");
+								double z = plugin.getChunkSavesFile().getConfigurationSection(playerFaction)
+										.getDouble("capitalLocation.Z");
 								player.teleport(new Location(w, x, y, z));
-								player.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + " You teleported to your capital!");
+								player.sendMessage(
+										StringConstants.MESSAGE_PREFIX_INFO + " You teleported to your capital!");
 								CommandExec.TPtaskIDs.remove(player.getName());
 							}
-						
+
 						}, 20 * 10));
 						return true;
-					}
-					else if (extraArguments[1].equalsIgnoreCase("set")) {
+					} else if (extraArguments[1].equalsIgnoreCase("set")) {
 						int playerChunkX = player.getLocation().getChunk().getX();
 						int playerChunkZ = player.getLocation().getChunk().getZ();
 						Location playerLoc = player.getLocation();
-						String claimedChunkFactionName = plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
-								.getString(playerChunkX + "," + playerChunkZ);
+						String claimedChunkFactionName = plugin.getChunkSavesFile()
+								.getConfigurationSection("ClaimedChunks").getString(playerChunkX + "," + playerChunkZ);
 						String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens")
 								.getString(player.getName());
 						Boolean playerIsLeader = plugin.getSecondConfig()
 								.getConfigurationSection(getPlayerFaction(player.getName())).getString("Owner")
 								.equals(sender.getName());
 						Location capitalLoc = player.getLocation();
-							if (playerIsLeader == true) {
+						if (playerIsLeader == true) {
 							boolean chunkPertainsToPlayersFaction = claimedChunkFactionName.equals(playerFaction);
-							if (chunkPertainsToPlayersFaction == true) {						
-										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("Capital",
-												playerChunkX + "," + playerChunkZ);
-										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.World" , capitalLoc.getWorld().getName());
-										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.X" , capitalLoc.getX());
-										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.Y" , capitalLoc.getY());
-										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.Z" , capitalLoc.getZ());
-										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.Yaw" , capitalLoc.getYaw());
-										plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("capitalLocation.Pitch" , capitalLoc.getPitch());
-										plugin.saveChunkSavesFile();
-										player.sendMessage(
-												StringConstants.MESSAGE_PREFIX_INFO + " You set your capital chunk");
-										return true;
-								 
+							if (chunkPertainsToPlayersFaction == true) {
+								plugin.getChunkSavesFile().getConfigurationSection(playerFaction).set("Capital",
+										playerChunkX + "," + playerChunkZ);
+								plugin.getChunkSavesFile().getConfigurationSection(playerFaction)
+										.set("capitalLocation.World", capitalLoc.getWorld().getName());
+								plugin.getChunkSavesFile().getConfigurationSection(playerFaction)
+										.set("capitalLocation.X", capitalLoc.getX());
+								plugin.getChunkSavesFile().getConfigurationSection(playerFaction)
+										.set("capitalLocation.Y", capitalLoc.getY());
+								plugin.getChunkSavesFile().getConfigurationSection(playerFaction)
+										.set("capitalLocation.Z", capitalLoc.getZ());
+								plugin.getChunkSavesFile().getConfigurationSection(playerFaction)
+										.set("capitalLocation.Yaw", capitalLoc.getYaw());
+								plugin.getChunkSavesFile().getConfigurationSection(playerFaction)
+										.set("capitalLocation.Pitch", capitalLoc.getPitch());
+								plugin.saveChunkSavesFile();
+								player.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + " You set your capital chunk");
+								return true;
+
 							} else {
 								player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE
 										+ " Your nation does not own this chunk!");
