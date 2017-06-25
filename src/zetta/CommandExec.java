@@ -269,13 +269,13 @@ public class CommandExec implements CommandExecutor {
 		playerFaction = getPlayerFaction(sender.getName());
 		if (playerFaction == null) {
 			sender.sendMessage(
-					StringConstants.MESSAGE_PREFIX_ERROR + "You cannot set visa when you aren't even in a faction!");
+					StringConstants.MESSAGE_PREFIX_ERROR + "You cannot set visa when you aren't even in a nation!");
 			return false;
 		}
 		String factionNameOfSender = playerFaction;
 		if (listCitizens(factionNameOfSender).contains(playerName) == true) {
 			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
-					+ "The individual you are trying to set a visa for is a member of your faction already.");
+					+ "The individual you are trying to set a visa for is a member of your nation already.");
 			return false;
 			// next line will throw npe lol
 		} else if (plugin.getSecondConfig().getConfigurationSection(factionNameOfSender)
@@ -294,7 +294,7 @@ public class CommandExec implements CommandExecutor {
 				.contains(playerName) == false) {
 			if (listCitizens(factionNameOfSender, true).contains(sender.getName()) == false) {
 				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
-						+ "Only an authorized member of a faction can activate a visa!");
+						+ "Only an authorized member of a nation can activate a visa!");
 				return false;
 			}
 			List<String> visaList = plugin.getSecondConfig().getConfigurationSection(factionNameOfSender)
@@ -308,7 +308,7 @@ public class CommandExec implements CommandExecutor {
 
 		} else {
 			player.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
-					+ "The invidual you are tring to set a visa for already has a visa for your faction.");
+					+ "The invidual you are tring to set a visa for already has a visa for your nation.");
 			return false;
 		}
 
@@ -333,27 +333,34 @@ public class CommandExec implements CommandExecutor {
 		String playerName = arguments[1];
 		if (getPlayerFaction(sender.getName()) == null) {
 			sender.sendMessage(
-					StringConstants.MESSAGE_PREFIX_ERROR + "You cannot set visa when you aren't even in a faction!");
+					StringConstants.MESSAGE_PREFIX_ERROR + "You cannot set visa when you aren't even in a nation!");
 			return false;
 		}
 		String factionNameOfSender = getPlayerFaction(sender.getName());
 		if (listCitizens(factionNameOfSender).contains(playerName) == true) {
 			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
-					+ "The individual you are trying to deactivate a visa for is a member of your faction.");
+					+ "The individual you are trying to deactivate a visa for is a member of your nation.");
 			return false;
-		} else if (plugin.getSecondConfig().getConfigurationSection("Visas").getString(playerName)
-				.equals(factionNameOfSender) == true) {
+		} else if (plugin.getSecondConfig().getConfigurationSection(factionNameOfSender)
+				.getStringList("Visas").contains(playerName) == true) {
 			if (listCitizens(factionNameOfSender, true).contains(sender.getName()) == false) {
 				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
-						+ "Only an authorized member of a faction can deactivate a visa!");
+						+ "Only an authorized member of a nation can deactivate a visa!");
 				return false;
 			}
 			sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + playerName
-					+ " no longer has a visa for your faction " + factionNameOfSender + "!");
-			plugin.getSecondConfig().getConfigurationSection("Visas").set(playerName, null);
+					+ " no longer has a visa for  " + factionNameOfSender + "!");
+			List<String> visaList = plugin.getSecondConfig().getConfigurationSection(factionNameOfSender)
+					.getStringList("Visas");
+			visaList.remove(playerName);
+			plugin.getSecondConfig().getConfigurationSection(factionNameOfSender).set("Visas", visaList);
 			plugin.saveSecondConfig();
 			return true;
 
+		}
+		else {
+			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
+					+ "That player does not have a visa for your nation!");
 		}
 
 		return true;
