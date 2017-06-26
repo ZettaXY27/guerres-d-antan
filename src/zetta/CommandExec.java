@@ -200,7 +200,129 @@ public class CommandExec implements CommandExecutor {
 	// List<String> listOfNations = ;
 	// return listOfNations;
 	// }
-
+	
+	/**
+	 * A really simple helper method for getting the X player chunk
+	 * @param player the player in question
+	 * @return returns the integer value of the X
+	 * 
+	 * @author Method implemented by Inivican
+	 */
+	int getPlayerChunkX(Player player){
+		return player.getLocation().getChunk().getX();
+	}
+	
+	/**
+	 * A really simple helper method for getting the Z player chunk
+	 * @param player the player in question
+	 * @return returns the integer value of the Z
+	 * 
+	 * @author Method implemented by Inivican
+	 */
+	int getPlayerChunkZ(Player player){
+		return player.getLocation().getChunk().getZ();
+	}
+	
+	/**
+	 * A reimplementation of showChunkMap by @author Inivican from 25 June, 2017
+	 * @param sender the individual who issued the command
+	 * @param player the player object
+	 * @return Whether the command was successful in being issued!
+	 * 
+	 * @author Method implemented by Inivican
+	 */
+	boolean showChunkMap(CommandSender sender, Player player){
+		
+		// Player position, motherfucker
+		int x = getPlayerChunkX(player);
+		int z = getPlayerChunkZ(player);
+		
+		// Initialize the message string
+		String message = "";
+		
+		// Initialize factions counter for the area
+		int factions = 0;
+		String lastFactionNoticed = "";
+		
+		// Initialize area factions list
+		List<String> factionList = null;
+		
+		sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
+		
+		
+		for(int currentX = x - 10; currentX < x + 10; currentX++){
+			
+			for(int currentZ = z - 10; currentZ < z + 40; currentZ++){
+				
+				
+				if(detectWhetherChunkIsClaimed(currentX, currentZ) ){
+					
+					// Get the name of the faction that owns the territory
+					String claimedChunkFactionName = plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
+							.getString(currentX+","+currentZ);
+					
+					if(factionList.contains(claimedChunkFactionName)){
+						
+						//The position in the list that a faction name is in will determine what color its territory appears as.
+						int positionInList = factionList.indexOf(claimedChunkFactionName);
+						
+						// Evaluate the position in the list that the faction name is in.
+						switch(positionInList){
+						case 01:
+							message += ChatColor.BLUE + "#";
+							break;
+						case 02:
+							message += ChatColor.GREEN + "#";
+							break;
+						case 03:
+							message += ChatColor.RED + "#";
+							break;
+						case 04:
+							message += ChatColor.DARK_PURPLE + "#";
+							break;
+						case 05:
+							message += ChatColor.YELLOW + "#";
+							break;
+						case 06:
+							message += ChatColor.DARK_GRAY + "#";
+							break;
+						case 07:
+							message += ChatColor.AQUA + "#";
+							break;
+						default:
+							message += ChatColor.WHITE+""+ ChatColor.UNDERLINE+"#";
+							break;
+						}
+						
+						
+					}
+					else{
+						factionList.add(claimedChunkFactionName);
+						factions++;
+					}
+					
+				}
+				else{
+					if((currentX == x) && (currentZ==z)){
+						message += ChatColor.WHITE + "@";
+					}
+				}
+				
+			}
+			sender.sendMessage(message);
+			
+		}
+		sender.sendMessage("Number of factions in the area:"+factions);
+		sender.sendMessage("# is claimed territory");
+		sender.sendMessage("");
+		for(int i = 0;i<factionList.size();i++){
+			sender.sendMessage(i+". "+factionList.indexOf(i) );
+		}
+		
+		return true;
+	}
+	
+	
 	/**
 	 * @author Inivican
 	 * @desc shows a general "map" of the chunks in the area
@@ -208,43 +330,43 @@ public class CommandExec implements CommandExecutor {
 	 * @param player
 	 * @return Whether the command completed successfully
 	 */
-	boolean showChunkMap(CommandSender sender, Player player) {
-		int startChunkX = player.getLocation().getChunk().getX();
-		int startChunkZ = player.getLocation().getChunk().getZ();
-		int playerChunkX = startChunkX;
-		int playerChunkZ = startChunkZ;
-		short numberOfFactionClaimsInThisArea = 0;
-		String chatString = "";
-		for (int k = 0; k < 20; k++) {
-			for (int i = 0; i < 50; i++) {
-				for (int j = 0; i < 50; i++) {
-					if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)
-							&& (player.getLocation().getChunk().getZ() == playerChunkZ
-									&& player.getLocation().getChunk().getZ() == playerChunkX)) {
-						chatString += ChatColor.DARK_GRAY + "#";
-						numberOfFactionClaimsInThisArea++;
-					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)) {
-						chatString += ChatColor.GREEN + "#";
-						numberOfFactionClaimsInThisArea++;
-					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ) == false
-							&& (startChunkX == playerChunkZ && startChunkZ == playerChunkX)) {
-						chatString += ChatColor.WHITE + "@";
-					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ) == false) {
-						chatString += ChatColor.WHITE + "/";
-					}
-
-					playerChunkX++;
-					playerChunkZ++;
-				}
-			}
-			sender.sendMessage(chatString);
-			chatString = "";
-		}
-		sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + "Number of faction claims in this area:"
-				+ numberOfFactionClaimsInThisArea);
-
-		return true;
-	}
+//	boolean showChunkMap(CommandSender sender, Player player) {
+//		int startChunkX = player.getLocation().getChunk().getX();
+//		int startChunkZ = player.getLocation().getChunk().getZ();
+//		int playerChunkX = startChunkX;
+//		int playerChunkZ = startChunkZ;
+//		short numberOfFactionClaimsInThisArea = 0;
+//		String chatString = "";
+//		for (int k = 0; k < 20; k++) {
+//			for (int i = 0; i < 50; i++) {
+//				for (int j = 0; i < 50; i++) {
+//					if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)
+//							&& (player.getLocation().getChunk().getZ() == playerChunkZ
+//									&& player.getLocation().getChunk().getZ() == playerChunkX)) {
+//						chatString += ChatColor.DARK_GRAY + "#";
+//						numberOfFactionClaimsInThisArea++;
+//					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)) {
+//						chatString += ChatColor.GREEN + "#";
+//						numberOfFactionClaimsInThisArea++;
+//					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ) == false
+//							&& (startChunkX == playerChunkZ && startChunkZ == playerChunkX)) {
+//						chatString += ChatColor.WHITE + "@";
+//					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ) == false) {
+//						chatString += ChatColor.WHITE + "/";
+//					}
+//
+//					playerChunkX++;
+//					playerChunkZ++;
+//				}
+//			}
+//			sender.sendMessage(chatString);
+//			chatString = "";
+//		}
+//		sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + "Number of faction claims in this area:"
+//				+ numberOfFactionClaimsInThisArea);
+//
+//		return true;
+//	}
 
 	/**
 	 * FOR THE COMMAND /gda setvisa (playername) SETVISA / ACTIVATE VISA
