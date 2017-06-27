@@ -224,6 +224,60 @@ public class CommandExec implements CommandExecutor {
 	}
 	
 	/**
+	 * @author Inivican
+	 * This method gets the visa holders list for a given faction
+	 * @param factionName THE STRING VARIABLE REPRESENTING A FACTION NAME
+	 * @return RETURNS A STRING LIST
+	 */
+	List<String> getVisaList(String factionName){
+		
+		
+		List<String> result = plugin.getSecondConfig().getConfigurationSection(factionName)
+				.getStringList("Visas");
+		
+		return result;
+	}
+	
+	/**
+	 * Overloaded version for arrays
+	 * @param factionName
+	 * @param resultIsArray
+	 * @return
+	 */
+	String[] getVisaList(String factionName, boolean resultIsArray){
+		List<String> resultList = plugin.getSecondConfig().getConfigurationSection(factionName)
+				.getStringList("Visas");
+		String[] resultArray = (String[]) resultList.toArray();
+		return resultArray;
+	}
+	
+	/**
+	 * TODO: Implement
+	 * 
+	 * @author Inivican
+	 * @param sender
+	 * @param player
+	 * @param args  Arguments (like {nation} )
+	 * @return
+	 */
+    boolean showVisaCarriersForFaction(CommandSender sender, Player player, String[] args){
+    	if(args.length<1){
+    		sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS);
+    		return false;
+    	}
+    	String[] visaArray = getVisaList(getPlayerFaction(sender.getName()) ,true);
+    	
+    	sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
+    	
+    	for(int i = 0;i<visaArray.length;i++){
+    		sender.sendMessage(visaArray[i]);
+    	}
+    	
+    	return true;
+    }
+	
+	
+	/**
 	 * A reimplementation of showChunkMap by @author Inivican from 25 June, 2017
 	 * @param sender the individual who issued the command
 	 * @param player the player object
@@ -261,7 +315,7 @@ public class CommandExec implements CommandExecutor {
 					String claimedChunkFactionName = plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
 							.getString(currentX+","+currentZ);
 					
-					if(factionList.contains(claimedChunkFactionName)){
+					if(factionList!=null &&  factionList.contains(claimedChunkFactionName)){
 						
 						//The position in the list that a faction name is in will determine what color its territory appears as.
 						int positionInList = factionList.indexOf(claimedChunkFactionName);
@@ -302,6 +356,7 @@ public class CommandExec implements CommandExecutor {
 					}
 					
 				}
+				
 				else{
 					if((currentX == x) && (currentZ==z)){
 						message += ChatColor.WHITE + "@";
@@ -315,10 +370,11 @@ public class CommandExec implements CommandExecutor {
 		sender.sendMessage("Number of factions in the area:"+factions);
 		sender.sendMessage("# is claimed territory");
 		sender.sendMessage("");
-		for(int i = 0;i<factionList.size();i++){
-			sender.sendMessage(i+". "+factionList.indexOf(i) );
+		if(factionList!=null){
+			for(int i = 0;i<factionList.size();i++){
+				sender.sendMessage(i+". "+factionList.indexOf(i) );
+			}
 		}
-		
 		return true;
 	}
 	
@@ -807,7 +863,7 @@ public class CommandExec implements CommandExecutor {
 						}
 
 					}
-				} else if (extraArguments[0].equalsIgnoreCase("cl")) {
+				} else if (extraArguments[0].equalsIgnoreCase("cl")||extraArguments[0].equalsIgnoreCase("chunklist")) {
 					String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens")
 							.getString(sender.getName());
 					List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(playerFaction)
@@ -817,13 +873,13 @@ public class CommandExec implements CommandExecutor {
 						player.sendMessage(s);
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					return true;
-				} else if (extraArguments[0].equalsIgnoreCase("cc")) {
+				} else if (extraArguments[0].equalsIgnoreCase("cc")||extraArguments[0].equalsIgnoreCase("this")) {
 					int playerChunkX = player.getLocation().getChunk().getX();
 					int playerChunkZ = player.getLocation().getChunk().getZ();
 					player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " You are standing on chunk " + playerChunkX
 							+ " " + playerChunkZ);
 					return true;
-				} else if (extraArguments[0].equalsIgnoreCase("help")) {
+				} else if (extraArguments[0].equalsIgnoreCase("help")||extraArguments[0].equalsIgnoreCase("help1")) {
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
 					player.sendMessage(ChatColor.GOLD + "cc: Short for check chunk. Usage: /gda cc");
 					player.sendMessage(ChatColor.GOLD + "cl: Short for claim list. Usage: /gda cl");
@@ -916,9 +972,14 @@ public class CommandExec implements CommandExecutor {
 
 					player.sendMessage(ChatColor.GREEN + "Use /gda denyvisa (player) to cancel a player's visa");
 					player.sendMessage(ChatColor.GREEN + "Use /gda setvisa (player) to set a player's visa");
-
+					player.sendMessage(ChatColor.GREEN + "Use /gda nationstats (nation) to see a nation's stats");
+					player.sendMessage(ChatColor.GREEN + "Use /gda visastats (nation) to see a nation's visa holders.");
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					return true;
+				} else if(extraArguments[0].equalsIgnoreCase("visastats")){
+					
+					return showVisaCarriersForFaction(sender, player, extraArguments);
+					
 				} else if (extraArguments[0].equalsIgnoreCase("denyvisa")) {
 					deactivatePlayerVisa(player, extraArguments, sender);
 					return true;
