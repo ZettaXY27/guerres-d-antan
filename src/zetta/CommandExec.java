@@ -239,10 +239,12 @@ public class CommandExec implements CommandExecutor {
 	}
 	
 	/**
+	 * @author Inivican
+	 * @note <b>This method might not work!</b></br> Consider utilizing List<String> getVisaList() instead. 
 	 * Overloaded version for arrays
 	 * @param factionName
 	 * @param resultIsArray
-	 * @return
+	 * @return the visaList as a string array
 	 */
 	String[] getVisaList(String factionName, boolean resultIsArray){
 		List<String> resultList = plugin.getSecondConfig().getConfigurationSection(factionName)
@@ -265,17 +267,19 @@ public class CommandExec implements CommandExecutor {
     		sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS);
     		return false;
     	}
-    	String[] visaArray = getVisaList(getPlayerFaction(sender.getName()) ,true);
-    	
-    	sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
-    	
-    	for(int i = 0;i<visaArray.length;i++){
-    		sender.sendMessage(visaArray[i]);
+    	List<String> visaList = getVisaList(getPlayerFaction(player.getName()));
+    	sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK+"Visastats for "+args[1]+"!");
+    	sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
+    	for(int i = 0;i<visaList.size();i++){
+    		sender.sendMessage(visaList.get(i));
     	}
-    	
+    	sender.sendMessage("Total:"+visaList.size());
+    	sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
     	return true;
     }
 	
+    
+    
 	
 	/**
 	 * A reimplementation of showChunkMap by @author Inivican from 25 June, 2017
@@ -695,11 +699,16 @@ public class CommandExec implements CommandExecutor {
 						return false;
 					}
 					//////////////
-				} else if (extraArguments[0].equalsIgnoreCase("stats")) {
+				} else if (extraArguments[0].equalsIgnoreCase("stats")||extraArguments[0].equalsIgnoreCase("nationstats")) {
+					
 					return showNationStats(player, sender, extraArguments);
+					
 				} else if (extraArguments[0].equalsIgnoreCase("unclaim")) {
+					
 					int playerChunkX = player.getLocation().getChunk().getX();
+					
 					int playerChunkZ = player.getLocation().getChunk().getZ();
+					
 					if (playerIsInAFaction(player.getName()) == true && getPlayerFaction(player.getName())
 							.equals(plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
 									.get(playerChunkX + "," + playerChunkZ)) == true) {
@@ -972,7 +981,7 @@ public class CommandExec implements CommandExecutor {
 
 					player.sendMessage(ChatColor.GREEN + "Use /gda denyvisa (player) to cancel a player's visa");
 					player.sendMessage(ChatColor.GREEN + "Use /gda setvisa (player) to set a player's visa");
-					player.sendMessage(ChatColor.GREEN + "Use /gda nationstats (nation) to see a nation's stats");
+					player.sendMessage(ChatColor.GREEN + "Use /gda stats (nation) to see a nation's stats");
 					player.sendMessage(ChatColor.GREEN + "Use /gda visastats (nation) to see a nation's visa holders.");
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					return true;
