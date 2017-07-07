@@ -13,11 +13,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -44,7 +47,37 @@ public class CommandExec implements CommandExecutor {
 		return chunkList;
 
 	}
-
+	
+	boolean getChangeLogBook(CommandSender sender){
+		if(sender instanceof Player == false){
+			sender.sendMessage(StringConstants.MESSAGE_GENERIC_ERROR+"Only players can use this command.");
+			return false;
+		}
+		Player player = (Player)sender;
+		ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+		BookMeta bookMeta = (BookMeta) book.getItemMeta();
+		
+		String[] pageArray = new String[] {
+				StringConstants.LOGBOOK_PAGE01,
+				StringConstants.LOGBOOK_PAGE02,
+				StringConstants.LOGBOOK_PAGE03,
+				StringConstants.LOGBOOK_PAGE04,
+				StringConstants.LOGBOOK_PAGE05,
+				StringConstants.LOGBOOK_PAGE06,
+				StringConstants.LOGBOOK_PAGE07
+		};
+		
+		bookMeta.setPages( pageArray );
+		bookMeta.setAuthor("Inivican");
+		bookMeta.setTitle("Changelog 1.0 by Zetta & Inivican");
+		
+		book.setItemMeta(bookMeta);
+		player.getInventory().addItem(book);
+		sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "Enjoy your very comprehensive book.");
+		return true;
+	}
+	
+	
 	// Invite check, will return NPE if the HashMap is null.
 	boolean playerHasBeenInvited(String player1, String player2) {
 		// Value is normally assigned to player1, which is the key
@@ -390,43 +423,7 @@ public class CommandExec implements CommandExecutor {
 	 * @param player
 	 * @return Whether the command completed successfully
 	 */
-//	boolean showChunkMap(CommandSender sender, Player player) {
-//		int startChunkX = player.getLocation().getChunk().getX();
-//		int startChunkZ = player.getLocation().getChunk().getZ();
-//		int playerChunkX = startChunkX;
-//		int playerChunkZ = startChunkZ;
-//		short numberOfFactionClaimsInThisArea = 0;
-//		String chatString = "";
-//		for (int k = 0; k < 20; k++) {
-//			for (int i = 0; i < 50; i++) {
-//				for (int j = 0; i < 50; i++) {
-//					if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)
-//							&& (player.getLocation().getChunk().getZ() == playerChunkZ
-//									&& player.getLocation().getChunk().getZ() == playerChunkX)) {
-//						chatString += ChatColor.DARK_GRAY + "#";
-//						numberOfFactionClaimsInThisArea++;
-//					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ)) {
-//						chatString += ChatColor.GREEN + "#";
-//						numberOfFactionClaimsInThisArea++;
-//					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ) == false
-//							&& (startChunkX == playerChunkZ && startChunkZ == playerChunkX)) {
-//						chatString += ChatColor.WHITE + "@";
-//					} else if (detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ) == false) {
-//						chatString += ChatColor.WHITE + "/";
-//					}
-//
-//					playerChunkX++;
-//					playerChunkZ++;
-//				}
-//			}
-//			sender.sendMessage(chatString);
-//			chatString = "";
-//		}
-//		sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + "Number of faction claims in this area:"
-//				+ numberOfFactionClaimsInThisArea);
-//
-//		return true;
-//	}
+
 
 	/**
 	 * FOR THE COMMAND /gda setvisa (playername) SETVISA / ACTIVATE VISA
@@ -556,12 +553,6 @@ public class CommandExec implements CommandExecutor {
 	 * @return returns the command status (whether successful or not)
 	 */
 	boolean showNationStats(Player player, CommandSender sender, String[] arguments) {
-
-		// if(arguments[0].length() == 0){
-		// player.sendMessage(StringConstants.MESSAGE_PREFIX_MISTAKE + "Not
-		// enough arguments.");
-		// return false;
-		// }
 
 		List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(getPlayerFaction(player.getName()))
 				.getStringList("Chunks");
@@ -974,7 +965,13 @@ public class CommandExec implements CommandExecutor {
 								StringConstants.MESSAGE_PREFIX_ERROR + "You are not a citizen of any country!");
 						return true;
 					}
-				} else if (extraArguments[0].equalsIgnoreCase("help2")) {
+				}//changelog
+				else if(extraArguments[0].equalsIgnoreCase("changelog")){
+					
+					return true;
+				}
+				
+				else if (extraArguments[0].equalsIgnoreCase("help2")) {
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
 					player.sendMessage(ChatColor.GREEN
 							+ "Use /gda overclaim to overtake enemy territory. You must look at an enemy chunk...");
@@ -983,9 +980,14 @@ public class CommandExec implements CommandExecutor {
 					player.sendMessage(ChatColor.GREEN + "Use /gda setvisa (player) to set a player's visa");
 					player.sendMessage(ChatColor.GREEN + "Use /gda stats (nation) to see a nation's stats");
 					player.sendMessage(ChatColor.GREEN + "Use /gda visastats (nation) to see a nation's visa holders.");
+					player.sendMessage(ChatColor.GREEN + "Use /gda kick (member-name) to remove a member from the faction.");
+					player.sendMessage("");
+					
+					
+					
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					return true;
-				} else if(extraArguments[0].equalsIgnoreCase("visastats")){
+				} else if(extraArguments[0].equalsIgnoreCase("visastats")||extraArguments[0].equalsIgnoreCase("vstats")){
 					
 					return showVisaCarriersForFaction(sender, player, extraArguments);
 					
@@ -1215,7 +1217,7 @@ public class CommandExec implements CommandExecutor {
 					}, (20 * 10L), 20 * 10); // 10 sec delay, 10800 (or 3 hours)
 												// secs cycle
 					return true;
-				} else if (extraArguments[0].equalsIgnoreCase("nations")) {
+				} else if (extraArguments[0].equalsIgnoreCase("nations")||extraArguments[0].equalsIgnoreCase("list")) {
 					List<String> factionList = plugin.getSecondConfig().getStringList("FactionList");
 					if (factionList.size() < 20) {
 						player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " Nation list");
