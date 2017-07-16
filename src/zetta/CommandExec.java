@@ -41,7 +41,43 @@ public class CommandExec implements CommandExecutor {
 	public CommandExec(Main plugin) {
 		this.plugin = plugin;
 	}
-
+    
+	/**
+	 * @author ZettaX
+	 * @param relationType
+	 *         The relation type that you wish to set. Ally or Enemy, neutral is default.
+	 * @param faction1
+	 *         The faction you wish to set the relation from.
+	 * @param faction2
+	 *         The faction you wish to set the relation to.
+	 */
+	boolean setRelation(String relationType, String faction1, String faction2) {
+			
+		List<String> relationListByType_f1 = plugin.getSecondConfig().getConfigurationSection(faction1).getStringList(relationType);
+		List<String> relationListByType_f2 = plugin.getSecondConfig().getConfigurationSection(faction2).getStringList(relationType);
+		
+		if(relationType.equalsIgnoreCase("Ally")) {
+			relationListByType_f1.add(faction2);
+			plugin.getSecondConfig().getConfigurationSection(faction1).set(relationType, relationListByType_f1);
+			relationListByType_f2.add(faction1);
+			plugin.getSecondConfig().getConfigurationSection(faction2).set(relationType, relationListByType_f2);
+			plugin.saveSecondConfig();
+			plugin.getLogger().info("yeet, i haeb set the relation kebab");
+			return true;
+		}
+		if(relationType.equalsIgnoreCase("Enemy")) {
+			relationListByType_f1.add(faction2);
+			plugin.getSecondConfig().getConfigurationSection(faction1).set(relationType, relationListByType_f1);
+			relationListByType_f2.add(faction1);
+			plugin.getSecondConfig().getConfigurationSection(faction2).set(relationType, relationListByType_f2);
+			plugin.saveSecondConfig();
+			plugin.getLogger().info("yeet, i haeb set the relation kebab");
+			return true;
+		}
+		return false;
+		
+	}
+	
 	List<String> listChunks(String factionName) {
 		List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(factionName).getStringList("Chunks");
 		return chunkList;
@@ -1384,6 +1420,15 @@ public class CommandExec implements CommandExecutor {
 						sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + i);
 					}
 					return true;
+					
+				}
+				else if (extraArguments[0].equalsIgnoreCase("sub"))  {
+					//TODO: Add subfaction meme
+				}
+				else if (extraArguments[0].equalsIgnoreCase("ally")) {
+					
+					return setRelation(extraArguments[0], getPlayerFaction(player.getName()), extraArguments[1]);
+					
 				}
 			}
 		} else {
