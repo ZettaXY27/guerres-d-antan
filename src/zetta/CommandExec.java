@@ -187,6 +187,31 @@ public class CommandExec implements CommandExecutor {
 
 	/**
 	 * @author Inivican
+	 * @param subfactionName the name of the subfaction.
+	 * @param playerName the player we are trying to determine association with the subfaction (as in, whether the player is a leader).
+	 * @return success of the method
+	 */
+	Boolean playerIsSubfactionLeader(String subfactionName, String playerName){
+		Boolean playerIsSubfactionLeader = plugin.getSecondConfig().getConfigurationSection(subfactionName).getString("Owner")
+				.equals(playerName);
+		return playerIsSubfactionLeader;
+	}
+	
+	/**
+	 * @author Inivican
+	 * @param subfactionName the name of the subfaction.
+	 * @param playerName the player we are trying to determine association with the subfaction (as in, whether the player is leader of the faction that the subfaction is a part of).
+	 * @return
+	 */
+	Boolean playerIsMasterOfSubfaction(String subfactionName, String playerName){
+		Boolean playerIsMasterOfSubfaction = plugin.getSecondConfig().getConfigurationSection(subfactionName).getString("Master")
+				.equals(playerName);
+		
+		return playerIsMasterOfSubfaction;
+	}
+	
+	/**
+	 * @author Inivican
 	 * @param factionName
 	 *            the required faction name as a String
 	 * @return Returns a list of all the citizens in a given faction
@@ -219,6 +244,55 @@ public class CommandExec implements CommandExecutor {
 		return citizenList;
 	}
 
+	/**
+	 * @author Inivican
+	 * @param arg === name of subfaction
+	 * @param factionName just that, the faction name we are dealing with
+	 * @param sender the sender of the motherflipping command, by George
+	 * @return command success status
+	 */
+	boolean createSubfaction(String arg, String factionName, CommandSender sender){
+		Boolean infiniteSubFactions = true;
+		
+		if(arg == null||arg==""||arg==" "||arg.contains(" ")){
+			sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS+"; You need to put in a name");
+			return false;
+		}
+		else if(arg.length() > 10){
+			sender.sendMessage(StringConstants.MESSAGE_ERROR_TOO_LONG);
+			return false;
+		}
+		String playerName = sender.getName();
+		String playerFaction = getPlayerFaction(playerName);
+		
+		// If the player, as in sender of the command, is either the leader of the faction or 
+		//the leader of a subfaction and the creation of nested subfactions is allowed, then allow for the creation of a new subfaction.
+		if( playerIsLeader(playerFaction,playerName ) == true ||
+				( playerIsSubfactionLeader(factionName, playerName)==true&& infiniteSubFactions==true )){
+			if(plugin.getSecondConfig().contains(arg)){
+				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR+"There is already a subfaction called "+arg+" already!");
+				return false;//unsuccessful.
+			}else{
+				if(plugin.getSecondConfig().contains("Citizens")==false){
+					plugin.getSecondConfig().createSection("Citizens");
+				} else if (plugin.getSecondConfig().getConfigurationSection("Citizens").contains(playerName)){
+					player.sendMessage
+				}
+				
+			}
+			
+			
+			
+		}
+		
+		
+		
+		
+		return false;
+	}
+	
+	
+	
 	/**
 	 * @Author ZettaX
 	 * @param playerList
@@ -909,11 +983,16 @@ public class CommandExec implements CommandExecutor {
 						player.sendMessage(s);
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					return true;
-				} else if (extraArguments[0].equalsIgnoreCase("cc")||extraArguments[0].equalsIgnoreCase("this")) {
+				} else if (extraArguments[0].equalsIgnoreCase("cc")
+						||extraArguments[0].equalsIgnoreCase("this")
+						||extraArguments[0].equalsIgnoreCase("checkchunk")) {
 					int playerChunkX = player.getLocation().getChunk().getX();
 					int playerChunkZ = player.getLocation().getChunk().getZ();
 					player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " You are standing on chunk " + playerChunkX
 							+ " " + playerChunkZ);
+					player.sendMessage(StringConstants.MESSAGE_PREFIX_INFO +
+							"Is chunk claimed:"+ detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ));
+					
 					return true;
 				} else if (extraArguments[0].equalsIgnoreCase("help")||extraArguments[0].equalsIgnoreCase("help1")) {
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
@@ -1003,8 +1082,8 @@ public class CommandExec implements CommandExecutor {
 					}
 				}//changelog
 				else if(extraArguments[0].equalsIgnoreCase("changelog")){
-					
-					return true;
+					// give the sender a physical book that contains a changelog
+					return getChangeLogBook(sender);
 				}
 				
 				else if (extraArguments[0].equalsIgnoreCase("help2")) {
@@ -1422,8 +1501,10 @@ public class CommandExec implements CommandExecutor {
 					return true;
 					
 				}
-				else if (extraArguments[0].equalsIgnoreCase("sub"))  {
+				else if (extraArguments[0].equalsIgnoreCase("sub")||extraArguments[0].equalsIgnoreCase("createsub"))  {
 					//TODO: Add subfaction meme
+					
+					return createSubfaction(extraArguments[1], getPlayerFaction(player.getName()), sender );
 				}
 				else if (extraArguments[0].equalsIgnoreCase("ally")) {
 					
