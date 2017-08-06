@@ -245,20 +245,31 @@ public class CommandExec implements CommandExecutor {
 	}
 
 	/**
+	 * A pretty superfluous method wherein you supply a
+	 * @param player object
+	 * @return and get a string name of the player
+	 */
+	String getPlayerName(Player player){
+		return player.getName();
+	}
+	
+	
+	
+	/**
 	 * @author Inivican
-	 * @param arg === name of subfaction
+	 * @param subfactionName === name of subfaction
 	 * @param factionName just that, the faction name we are dealing with
 	 * @param sender the sender of the motherflipping command, by George
 	 * @return command success status
 	 */
-	boolean createSubfaction(String arg, String factionName, CommandSender sender){
+	boolean createSubfaction(String subfactionName, String factionName, CommandSender sender){
 		Boolean infiniteSubFactions = true;
 		
-		if(arg == null||arg==""||arg==" "||arg.contains(" ")){
+		if(subfactionName == null||subfactionName==""||subfactionName==" "||subfactionName.contains(" ")){
 			sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS+"; You need to put in a name");
 			return false;
 		}
-		else if(arg.length() > 10){
+		else if(subfactionName.length() > 10){
 			sender.sendMessage(StringConstants.MESSAGE_ERROR_TOO_LONG);
 			return false;
 		}
@@ -269,16 +280,37 @@ public class CommandExec implements CommandExecutor {
 		//the leader of a subfaction and the creation of nested subfactions is allowed, then allow for the creation of a new subfaction.
 		if( playerIsLeader(playerFaction,playerName ) == true ||
 				( playerIsSubfactionLeader(factionName, playerName)==true&& infiniteSubFactions==true )){
-			if(plugin.getSecondConfig().contains(arg)){
-				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR+"There is already a subfaction called "+arg+" already!");
+			if(plugin.getSecondConfig().contains(subfactionName)){
+				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR+"There is already a subfaction/nation called "+subfactionName+" already!");
 				return false;//unsuccessful.
 			}else{
 				if(plugin.getSecondConfig().contains("Citizens")==false){
 					plugin.getSecondConfig().createSection("Citizens");
-				} else if (plugin.getSecondConfig().getConfigurationSection("Citizens").contains(playerName)){
-					player.sendMessage
-				}
+				} //else if (plugin.getSecondConfig().getConfigurationSection("Citizens").contains(playerName)){
+					// this is allowed because the player has to be a citizen of a country to create a subfaction of a given country
+					// but subfactions are treated as different faction entries and thus the player is moved into the subfaction
+				plugin.getSecondConfig().createSection(subfactionName);	
+				plugin.getSecondConfig().getConfigurationSection(subfactionName).set("Master", playerName);
+				plugin.getSecondConfig().getConfigurationSection("Citizens").set(playerName, subfactionName);
+				plugin.getChunkSavesFile().createSection(subfactionName).createSection("Chunks");
+				List<String> factionList = plugin.getSecondConfig().getStringList("FactionList");
+				factionList.add(subfactionName);
+				plugin.getSecondConfig().set("FactionList", factionList);
+				ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile,
+						plugin.chunkSavesFileConfiguration );
+				plugin.saveSecondConfig();
+				/**
+				 * We do not immediately create a bank for a
+				 *  subfaction because that is up to
+				 *   the discretion of the parent nation
+				*/
 				
+				sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO+"Subfaction "+
+				subfactionName+" has been created with "+playerName+" set as its maintainer! Do [/gda subfaction "+
+				subfactionName+" claim] to claim a chunk in your faction for the subfaction!"
+				);
+				
+				return true;
 			}
 			
 			
@@ -299,7 +331,7 @@ public class CommandExec implements CommandExecutor {
 	 *            A list of players
 	 * @return Returns true if one of the players in the list is online
 	 */
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("deprecation")// Note: this method does NOT work in Minecraft 1.8 or newer.
 	boolean atleastOneIsOnline(List<String> playerList) {
 		for (String i : playerList) {
 			if (plugin.getServer().getPlayerExact(i) != null) {
@@ -1502,9 +1534,11 @@ public class CommandExec implements CommandExecutor {
 					
 				}
 				else if (extraArguments[0].equalsIgnoreCase("sub")||extraArguments[0].equalsIgnoreCase("createsub"))  {
-					//TODO: Add subfaction meme
-					
-					return createSubfaction(extraArguments[1], getPlayerFaction(player.getName()), sender );
+					 
+					/**
+					 * createSubfactionMeme 
+					 */
+					return createSubfaction(extraArguments[1].toString(), getPlayerFaction(player.getName()), sender );
 				}
 				else if (extraArguments[0].equalsIgnoreCase("ally")) {
 					
