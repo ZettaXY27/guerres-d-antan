@@ -62,7 +62,7 @@ public class CommandExec implements CommandExecutor {
 			relationListByType_f2.add(faction1);
 			plugin.getSecondConfig().getConfigurationSection(faction2).set(relationType, relationListByType_f2);
 			plugin.saveSecondConfig();
-			plugin.getLogger().info("yeet, i haeb set the relation kebab");
+			plugin.getLogger().info("RelationType Enemy has been set between " faction2 + " ahd " + faction1);
 			return true;
 		}
 		if(relationType.equalsIgnoreCase("Enemy")) {
@@ -71,7 +71,7 @@ public class CommandExec implements CommandExecutor {
 			relationListByType_f2.add(faction1);
 			plugin.getSecondConfig().getConfigurationSection(faction2).set(relationType, relationListByType_f2);
 			plugin.saveSecondConfig();
-			plugin.getLogger().info("yeet, i haeb set the relation kebab");
+			plugin.getLogger().info("RelationType Enemy has been set between " faction2 + " ahd " + faction1);
 			return true;
 		}
 		return false;
