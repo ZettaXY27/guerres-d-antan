@@ -1,0 +1,25 @@
+commands list for gda
+
+claim
+stats || nationstats
+unclaim
+map # does not work
+create
+invite # command uses a deprecated method, look into
+join
+cl || chunklist
+cc || this
+help || help1
+leave
+help2
+visastats || vstats
+denyvisa
+setvisa
+overclaim
+official
+kick
+firstRun
+nations || list
+capital
+treasury
+debugbanks
