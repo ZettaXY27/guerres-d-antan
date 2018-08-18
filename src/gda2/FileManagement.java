@@ -2,39 +2,21 @@ package gda2;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.EnderPearl;
 /*import org.bukkit.entity.Creeper;*/
-import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.LargeFireball;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.SmallFireball;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class FileManagement {
 	
+	private Main mainClass;
 	private FileConfiguration fileConfig;//config
 	private File actualFile;//configuration file
+	private String name;
 	
 	public FileManagement() {
-		//empty constructor
+		actualFile = new File(mainClass.getDataFolder(), name);
 	}
 	
 	public FileConfiguration getFileConfiguration() {
@@ -45,5 +27,25 @@ public class FileManagement {
 		return this.actualFile;
 	}
 	
+	// Saves the file
+	public void saveConfigFile() {
+		if (fileConfig == null || actualFile == null) {
+			return;
+		}
+		try {
+		    getFileConfiguration().save(actualFile);
+		} catch (IOException ex) {
+			mainClass.getLogger().log(Level.SEVERE, "Could not save config to " + actualFile, ex);
+		}
+	}
+	
+	// Reloads the file, if it doesn't exist, it creates it
+	public void reloadConfigFile() {
+		if(actualFile == null) {		
+			actualFile = new File(mainClass.getDataFolder(), name);
+		}
+		fileConfig = YamlConfiguration.loadConfiguration(actualFile);
+	}
+
 	
 }
