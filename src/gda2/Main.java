@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Main extends JavaPlugin {
 	
 	//private FileConfiguration fileConfig2;//See FileManagement class for the functionalities
-	
+	private FileManagement firstFileMngrForConfigFile;
+	private FileManagement secondFileMngrForConfigFile;
 	
 }

@@ -31,7 +31,7 @@ import org.bukkit.scheduler.BukkitScheduler;
 public class FileManagement {
 	
 	private FileConfiguration fileConfig;//config
-	private File configFile;//configuration file
+	private File actualFile;//configuration file
 	
 	public FileManagement() {
 		//empty constructor
@@ -42,7 +42,7 @@ public class FileManagement {
 	}
 	
 	public File getConfigFile() {
-		return this.configFile;
+		return this.actualFile;
 	}
 	
 	
