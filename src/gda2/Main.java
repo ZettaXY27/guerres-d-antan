@@ -21,7 +21,7 @@ public class Main extends JavaPlugin {
 	//Things like command registering and event listeners take place here
 	public void onEnable() {
 		
-	//	firstFileMngrForConfigFile.reload();
+		firstFileMngrForConfigFile.reloadConfigFile();
 		
 	}
 	

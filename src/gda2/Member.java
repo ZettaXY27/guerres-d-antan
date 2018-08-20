@@ -9,7 +9,7 @@ package gda2;
 /* Defines the structure of a member of any given faction, their position
  * and ranking within the faction.
  */
-public class Member {
+public class Member{
 	//string name of the given player
 	private String name = "";
 	private Rank rankPositionWithinFaction;
