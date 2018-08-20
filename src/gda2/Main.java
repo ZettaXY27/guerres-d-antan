@@ -16,6 +16,14 @@ public class Main extends JavaPlugin {
 	private FileManagement firstFileMngrForConfigFile;
 	private FileManagement secondFileMngrForConfigFile;
 	
+	@Override
+	//Everything in this method runs when the plugin is loaded.
+	//Things like command registering and event listeners take place here
+	public void onEnable() {
+		
+	//	firstFileMngrForConfigFile.reload();
+		
+	}
 	
 	
 }
