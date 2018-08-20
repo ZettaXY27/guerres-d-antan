@@ -41,7 +41,7 @@ public class CommandExec implements CommandExecutor {
 	public CommandExec(Main plugin) {
 		this.plugin = plugin;
 	}
-    
+
 	/**
 	 * @author ZettaX
 	 * @param relationType
@@ -77,43 +77,36 @@ public class CommandExec implements CommandExecutor {
 		return false;
 		
 	}
-	
+
 	List<String> listChunks(String factionName) {
 		List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(factionName).getStringList("Chunks");
 		return chunkList;
 
 	}
-	
-	boolean getChangeLogBook(CommandSender sender){
-		if(sender instanceof Player == false){
-			sender.sendMessage(StringConstants.MESSAGE_GENERIC_ERROR+"Only players can use this command.");
+
+	boolean getChangeLogBook(CommandSender sender) {
+		if (sender instanceof Player == false) {
+			sender.sendMessage(StringConstants.MESSAGE_GENERIC_ERROR + "Only players can use this command.");
 			return false;
 		}
-		Player player = (Player)sender;
+		Player player = (Player) sender;
 		ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
 		BookMeta bookMeta = (BookMeta) book.getItemMeta();
-		
-		String[] pageArray = new String[] {
-				StringConstants.LOGBOOK_PAGE01,
-				StringConstants.LOGBOOK_PAGE02,
-				StringConstants.LOGBOOK_PAGE03,
-				StringConstants.LOGBOOK_PAGE04,
-				StringConstants.LOGBOOK_PAGE05,
-				StringConstants.LOGBOOK_PAGE06,
-				StringConstants.LOGBOOK_PAGE07
-		};
-		
-		bookMeta.setPages( pageArray );
+
+		String[] pageArray = new String[] { StringConstants.LOGBOOK_PAGE01, StringConstants.LOGBOOK_PAGE02,
+				StringConstants.LOGBOOK_PAGE03, StringConstants.LOGBOOK_PAGE04, StringConstants.LOGBOOK_PAGE05,
+				StringConstants.LOGBOOK_PAGE06, StringConstants.LOGBOOK_PAGE07 };
+
+		bookMeta.setPages(pageArray);
 		bookMeta.setAuthor("Inivican");
 		bookMeta.setTitle("Changelog 1.0 by Zetta & Inivican");
-		
+
 		book.setItemMeta(bookMeta);
 		player.getInventory().addItem(book);
 		sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "Enjoy your very comprehensive book.");
 		return true;
 	}
-	
-	
+
 	// Invite check, will return NPE if the HashMap is null.
 	boolean playerHasBeenInvited(String player1, String player2) {
 		// Value is normally assigned to player1, which is the key
@@ -187,29 +180,36 @@ public class CommandExec implements CommandExecutor {
 
 	/**
 	 * @author Inivican
-	 * @param subfactionName the name of the subfaction.
-	 * @param playerName the player we are trying to determine association with the subfaction (as in, whether the player is a leader).
+	 * @param subfactionName
+	 *            the name of the subfaction.
+	 * @param playerName
+	 *            the player we are trying to determine association with the
+	 *            subfaction (as in, whether the player is a leader).
 	 * @return success of the method
 	 */
-	Boolean playerIsSubfactionLeader(String subfactionName, String playerName){
-		Boolean playerIsSubfactionLeader = plugin.getSecondConfig().getConfigurationSection(subfactionName).getString("Owner")
-				.equals(playerName);
+	Boolean playerIsSubfactionLeader(String subfactionName, String playerName) {
+		Boolean playerIsSubfactionLeader = plugin.getSecondConfig().getConfigurationSection(subfactionName)
+				.getString("Owner").equals(playerName);
 		return playerIsSubfactionLeader;
 	}
-	
+
 	/**
 	 * @author Inivican
-	 * @param subfactionName the name of the subfaction.
-	 * @param playerName the player we are trying to determine association with the subfaction (as in, whether the player is leader of the faction that the subfaction is a part of).
+	 * @param subfactionName
+	 *            the name of the subfaction.
+	 * @param playerName
+	 *            the player we are trying to determine association with the
+	 *            subfaction (as in, whether the player is leader of the faction
+	 *            that the subfaction is a part of).
 	 * @return
 	 */
-	Boolean playerIsMasterOfSubfaction(String subfactionName, String playerName){
-		Boolean playerIsMasterOfSubfaction = plugin.getSecondConfig().getConfigurationSection(subfactionName).getString("Master")
-				.equals(playerName);
-		
+	Boolean playerIsMasterOfSubfaction(String subfactionName, String playerName) {
+		Boolean playerIsMasterOfSubfaction = plugin.getSecondConfig().getConfigurationSection(subfactionName)
+				.getString("Master").equals(playerName);
+
 		return playerIsMasterOfSubfaction;
 	}
-	
+
 	/**
 	 * @author Inivican
 	 * @param factionName
@@ -246,50 +246,58 @@ public class CommandExec implements CommandExecutor {
 
 	/**
 	 * A pretty superfluous method wherein you supply a
-	 * @param player object
+	 * 
+	 * @param player
+	 *            object
 	 * @return and get a string name of the player
 	 */
-	String getPlayerName(Player player){
+	String getPlayerName(Player player) {
 		return player.getName();
 	}
-	
-	
-	
+
 	/**
 	 * @author Inivican
-	 * @param subfactionName === name of subfaction
-	 * @param factionName just that, the faction name we are dealing with
-	 * @param sender the sender of the motherflipping command, by George
+	 * @param subfactionName
+	 *            === name of subfaction
+	 * @param factionName
+	 *            just that, the faction name we are dealing with
+	 * @param sender
+	 *            the sender of the motherflipping command, by George
 	 * @return command success status
 	 */
-	boolean createSubfaction(String subfactionName, String factionName, CommandSender sender){
+	boolean createSubfaction(String subfactionName, String factionName, CommandSender sender) {
 		Boolean infiniteSubFactions = true;
-		
-		if(subfactionName == null||subfactionName==""||subfactionName==" "||subfactionName.contains(" ")){
-			sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS+"; You need to put in a name");
+
+		if (subfactionName == null || subfactionName == "" || subfactionName == " " || subfactionName.contains(" ")) {
+			sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS + "; You need to put in a name");
 			return false;
-		}
-		else if(subfactionName.length() > 10){
+		} else if (subfactionName.length() > 10) {
 			sender.sendMessage(StringConstants.MESSAGE_ERROR_TOO_LONG);
 			return false;
 		}
 		String playerName = sender.getName();
 		String playerFaction = getPlayerFaction(playerName);
-		
-		// If the player, as in sender of the command, is either the leader of the faction or 
-		//the leader of a subfaction and the creation of nested subfactions is allowed, then allow for the creation of a new subfaction.
-		if( playerIsLeader(playerFaction,playerName ) == true ||
-				( playerIsSubfactionLeader(factionName, playerName)==true&& infiniteSubFactions==true )){
-			if(plugin.getSecondConfig().contains(subfactionName)){
-				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR+"There is already a subfaction/nation called "+subfactionName+" already!");
-				return false;//unsuccessful.
-			}else{
-				if(plugin.getSecondConfig().contains("Citizens")==false){
+
+		// If the player, as in sender of the command, is either the leader of the
+		// faction or
+		// the leader of a subfaction and the creation of nested subfactions is allowed,
+		// then allow for the creation of a new subfaction.
+		if (playerIsLeader(playerFaction, playerName) == true
+				|| (playerIsSubfactionLeader(factionName, playerName) == true && infiniteSubFactions == true)) {
+			if (plugin.getSecondConfig().contains(subfactionName)) {
+				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR + "There is already a subfaction/nation called "
+						+ subfactionName + " already!");
+				return false;// unsuccessful.
+			} else {
+				if (plugin.getSecondConfig().contains("Citizens") == false) {
 					plugin.getSecondConfig().createSection("Citizens");
-				} //else if (plugin.getSecondConfig().getConfigurationSection("Citizens").contains(playerName)){
-					// this is allowed because the player has to be a citizen of a country to create a subfaction of a given country
-					// but subfactions are treated as different faction entries and thus the player is moved into the subfaction
-				plugin.getSecondConfig().createSection(subfactionName);	
+				} // else if
+					// (plugin.getSecondConfig().getConfigurationSection("Citizens").contains(playerName)){
+					// this is allowed because the player has to be a citizen of a country to create
+					// a subfaction of a given country
+					// but subfactions are treated as different faction entries and thus the player
+					// is moved into the subfaction
+				plugin.getSecondConfig().createSection(subfactionName);
 				plugin.getSecondConfig().getConfigurationSection(subfactionName).set("Master", playerName);
 				plugin.getSecondConfig().getConfigurationSection("Citizens").set(playerName, subfactionName);
 				plugin.getChunkSavesFile().createSection(subfactionName).createSection("Chunks");
@@ -297,41 +305,32 @@ public class CommandExec implements CommandExecutor {
 				factionList.add(subfactionName);
 				plugin.getSecondConfig().set("FactionList", factionList);
 				ChunkManagement.saveChunkSavesFileConfiguration(plugin.chunkSavesFile,
-						plugin.chunkSavesFileConfiguration );
+						plugin.chunkSavesFileConfiguration);
 				plugin.saveSecondConfig();
 				/**
-				 * We do not immediately create a bank for a
-				 *  subfaction because that is up to
-				 *   the discretion of the parent nation
-				*/
-				
-				sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO+"Subfaction "+
-				subfactionName+" has been created with "+playerName+" set as its maintainer! Do [/gda subfaction "+
-				subfactionName+" claim] to claim a chunk in your faction for the subfaction!"
-				);
-				
+				 * We do not immediately create a bank for a subfaction because that is up to
+				 * the discretion of the parent nation
+				 */
+
+				sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + "Subfaction " + subfactionName
+						+ " has been created with " + playerName + " set as its maintainer! Do [/gda subfaction "
+						+ subfactionName + " claim] to claim a chunk in your faction for the subfaction!");
+
 				return true;
 			}
-			
-			
-			
+
 		}
-		
-		
-		
-		
+
 		return false;
 	}
-	
-	
-	
+
 	/**
 	 * @Author ZettaX
 	 * @param playerList
 	 *            A list of players
 	 * @return Returns true if one of the players in the list is online
 	 */
-	@SuppressWarnings("deprecation")// Note: this method does NOT work in Minecraft 1.8 or newer.
+	@SuppressWarnings("deprecation") // Note: this method does NOT work in Minecraft 1.8 or newer.
 	boolean atleastOneIsOnline(List<String> playerList) {
 		for (String i : playerList) {
 			if (plugin.getServer().getPlayerExact(i) != null) {
@@ -375,132 +374,134 @@ public class CommandExec implements CommandExecutor {
 	// List<String> listOfNations = ;
 	// return listOfNations;
 	// }
-	
+
 	/**
 	 * A really simple helper method for getting the X player chunk
-	 * @param player the player in question
+	 * 
+	 * @param player
+	 *            the player in question
 	 * @return returns the integer value of the X
 	 * 
 	 * @author Method implemented by Inivican
 	 */
-	int getPlayerChunkX(Player player){
+	int getPlayerChunkX(Player player) {
 		return player.getLocation().getChunk().getX();
 	}
-	
+
 	/**
 	 * A really simple helper method for getting the Z player chunk
-	 * @param player the player in question
+	 * 
+	 * @param player
+	 *            the player in question
 	 * @return returns the integer value of the Z
 	 * 
 	 * @author Method implemented by Inivican
 	 */
-	int getPlayerChunkZ(Player player){
+	int getPlayerChunkZ(Player player) {
 		return player.getLocation().getChunk().getZ();
 	}
-	
+
 	/**
-	 * @author Inivican
-	 * This method gets the visa holders list for a given faction
-	 * @param factionName THE STRING VARIABLE REPRESENTING A FACTION NAME
+	 * @author Inivican This method gets the visa holders list for a given faction
+	 * @param factionName
+	 *            THE STRING VARIABLE REPRESENTING A FACTION NAME
 	 * @return RETURNS A STRING LIST
 	 */
-	List<String> getVisaList(String factionName){
-		
-		
-		List<String> result = plugin.getSecondConfig().getConfigurationSection(factionName)
-				.getStringList("Visas");
-		
+	List<String> getVisaList(String factionName) {
+
+		List<String> result = plugin.getSecondConfig().getConfigurationSection(factionName).getStringList("Visas");
+
 		return result;
 	}
-	
+
 	/**
 	 * @author Inivican
-	 * @note <b>This method might not work!</b></br> Consider utilizing List<String> getVisaList() instead. 
-	 * Overloaded version for arrays
+	 * @note <b>This method might not work!</b></br>
+	 *       Consider utilizing List<String> getVisaList() instead. Overloaded
+	 *       version for arrays
 	 * @param factionName
 	 * @param resultIsArray
 	 * @return the visaList as a string array
 	 */
-	String[] getVisaList(String factionName, boolean resultIsArray){
-		List<String> resultList = plugin.getSecondConfig().getConfigurationSection(factionName)
-				.getStringList("Visas");
+	String[] getVisaList(String factionName, boolean resultIsArray) {
+		List<String> resultList = plugin.getSecondConfig().getConfigurationSection(factionName).getStringList("Visas");
 		String[] resultArray = (String[]) resultList.toArray();
 		return resultArray;
 	}
-	
+
 	/**
 	 * TODO: Implement
 	 * 
 	 * @author Inivican
 	 * @param sender
 	 * @param player
-	 * @param args  Arguments (like {nation} )
+	 * @param args
+	 *            Arguments (like {nation} )
 	 * @return
 	 */
-    boolean showVisaCarriersForFaction(CommandSender sender, Player player, String[] args){
-    	if(args.length<1){
-    		sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS);
-    		return false;
-    	}
-    	List<String> visaList = getVisaList(getPlayerFaction(player.getName()));
-    	sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK+"Visastats for "+args[1]+"!");
-    	sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
-    	for(int i = 0;i<visaList.size();i++){
-    		sender.sendMessage(visaList.get(i));
-    	}
-    	sender.sendMessage("Total:"+visaList.size());
-    	sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
-    	return true;
-    }
-	
-    
-    
-	
+	boolean showVisaCarriersForFaction(CommandSender sender, Player player, String[] args) {
+		if (args.length < 1) {
+			sender.sendMessage(StringConstants.MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS);
+			return false;
+		}
+		List<String> visaList = getVisaList(getPlayerFaction(player.getName()));
+		sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + "Visastats for " + args[1] + "!");
+		sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
+		for (int i = 0; i < visaList.size(); i++) {
+			sender.sendMessage(visaList.get(i));
+		}
+		sender.sendMessage("Total:" + visaList.size());
+		sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
+		return true;
+	}
+
 	/**
 	 * A reimplementation of showChunkMap by @author Inivican from 25 June, 2017
-	 * @param sender the individual who issued the command
-	 * @param player the player object
+	 * 
+	 * @param sender
+	 *            the individual who issued the command
+	 * @param player
+	 *            the player object
 	 * @return Whether the command was successful in being issued!
 	 * 
 	 * @author Method implemented by Inivican
 	 */
-	boolean showChunkMap(CommandSender sender, Player player){
-		
+	boolean showChunkMap(CommandSender sender, Player player) {
+
 		// Player position, motherfucker
 		int x = getPlayerChunkX(player);
 		int z = getPlayerChunkZ(player);
-		
+
 		// Initialize the message string
 		String message = "";
-		
+
 		// Initialize factions counter for the area
 		int factions = 0;
 		String lastFactionNoticed = "";
-		
+
 		// Initialize area factions list
 		List<String> factionList = null;
-		
+
 		sender.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
-		
-		
-		for(int currentX = x - 10; currentX < x + 10; currentX++){
-			
-			for(int currentZ = z - 10; currentZ < z + 40; currentZ++){
-				
-				
-				if(detectWhetherChunkIsClaimed(currentX, currentZ) ){
-					
+
+		for (int currentX = x - 10; currentX < x + 10; currentX++) {
+
+			for (int currentZ = z - 10; currentZ < z + 40; currentZ++) {
+
+				if (detectWhetherChunkIsClaimed(currentX, currentZ)) {
+
 					// Get the name of the faction that owns the territory
 					String claimedChunkFactionName = plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
-							.getString(currentX+","+currentZ);
-					
-					if(factionList!=null &&  factionList.contains(claimedChunkFactionName)){
-						
-						//The position in the list that a faction name is in will determine what color its territory appears as.
+							.getString(currentX + "," + currentZ);
+
+					if (factionList != null && factionList.contains(claimedChunkFactionName)) {
+
+						// The position in the list that a faction name is in will determine what color
+						// its territory appears as.
 						int positionInList = factionList.indexOf(claimedChunkFactionName);
-						
+
 						// Evaluate the position in the list that the faction name is in.
-						switch(positionInList){
+						switch (positionInList) {
 						case 01:
 							message += ChatColor.BLUE + "#";
 							break;
@@ -523,41 +524,38 @@ public class CommandExec implements CommandExecutor {
 							message += ChatColor.AQUA + "#";
 							break;
 						default:
-							message += ChatColor.WHITE+""+ ChatColor.UNDERLINE+"#";
+							message += ChatColor.WHITE + "" + ChatColor.UNDERLINE + "#";
 							break;
 						}
-						
-						
-					}
-					else{
+
+					} else {
 						factionList.add(claimedChunkFactionName);
 						factions++;
 					}
-					
+
 				}
-				
-				else{
-					if((currentX == x) && (currentZ==z)){
+
+				else {
+					if ((currentX == x) && (currentZ == z)) {
 						message += ChatColor.WHITE + "@";
 					}
 				}
-				
+
 			}
 			sender.sendMessage(message);
-			
+
 		}
-		sender.sendMessage("Number of factions in the area:"+factions);
+		sender.sendMessage("Number of factions in the area:" + factions);
 		sender.sendMessage("# is claimed territory");
 		sender.sendMessage("");
-		if(factionList!=null){
-			for(int i = 0;i<factionList.size();i++){
-				sender.sendMessage(i+". "+factionList.indexOf(i) );
+		if (factionList != null) {
+			for (int i = 0; i < factionList.size(); i++) {
+				sender.sendMessage(i + ". " + factionList.indexOf(i));
 			}
 		}
 		return true;
 	}
-	
-	
+
 	/**
 	 * @author Inivican
 	 * @desc shows a general "map" of the chunks in the area
@@ -565,7 +563,6 @@ public class CommandExec implements CommandExecutor {
 	 * @param player
 	 * @return Whether the command completed successfully
 	 */
-
 
 	/**
 	 * FOR THE COMMAND /gda setvisa (playername) SETVISA / ACTIVATE VISA
@@ -578,8 +575,7 @@ public class CommandExec implements CommandExecutor {
 	 * @param arguments
 	 *            The extraArguments[]
 	 * @return Whether or not the command completes successfully
-	 * @note It is really getting hard to navigate this class file to find
-	 *       methods.
+	 * @note It is really getting hard to navigate this class file to find methods.
 	 */
 	boolean activatePlayerVisa(CommandSender sender, String[] arguments, Player player, String playerFaction) {
 		if (arguments.length < 1) {
@@ -662,15 +658,15 @@ public class CommandExec implements CommandExecutor {
 			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
 					+ "The individual you are trying to deactivate a visa for is a member of your nation.");
 			return false;
-		} else if (plugin.getSecondConfig().getConfigurationSection(factionNameOfSender)
-				.getStringList("Visas").contains(playerName) == true) {
+		} else if (plugin.getSecondConfig().getConfigurationSection(factionNameOfSender).getStringList("Visas")
+				.contains(playerName) == true) {
 			if (listCitizens(factionNameOfSender, true).contains(sender.getName()) == false) {
 				sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
 						+ "Only an authorized member of a nation can deactivate a visa!");
 				return false;
 			}
-			sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + playerName
-					+ " no longer has a visa for  " + factionNameOfSender + "!");
+			sender.sendMessage(StringConstants.MESSAGE_PREFIX_OK + playerName + " no longer has a visa for  "
+					+ factionNameOfSender + "!");
 			List<String> visaList = plugin.getSecondConfig().getConfigurationSection(factionNameOfSender)
 					.getStringList("Visas");
 			visaList.remove(playerName);
@@ -678,10 +674,9 @@ public class CommandExec implements CommandExecutor {
 			plugin.saveSecondConfig();
 			return true;
 
-		}
-		else {
-			sender.sendMessage(StringConstants.MESSAGE_PREFIX_ERROR
-					+ "That player does not have a visa for your nation!");
+		} else {
+			sender.sendMessage(
+					StringConstants.MESSAGE_PREFIX_ERROR + "That player does not have a visa for your nation!");
 		}
 
 		return true;
@@ -832,16 +827,17 @@ public class CommandExec implements CommandExecutor {
 						return false;
 					}
 					//////////////
-				} else if (extraArguments[0].equalsIgnoreCase("stats")||extraArguments[0].equalsIgnoreCase("nationstats")) {
-					
+				} else if (extraArguments[0].equalsIgnoreCase("stats")
+						|| extraArguments[0].equalsIgnoreCase("nationstats")) {
+
 					return showNationStats(player, sender, extraArguments);
-					
+
 				} else if (extraArguments[0].equalsIgnoreCase("unclaim")) {
-					
+
 					int playerChunkX = player.getLocation().getChunk().getX();
-					
+
 					int playerChunkZ = player.getLocation().getChunk().getZ();
-					
+
 					if (playerIsInAFaction(player.getName()) == true && getPlayerFaction(player.getName())
 							.equals(plugin.getChunkSavesFile().getConfigurationSection("ClaimedChunks")
 									.get(playerChunkX + "," + playerChunkZ)) == true) {
@@ -1005,7 +1001,8 @@ public class CommandExec implements CommandExecutor {
 						}
 
 					}
-				} else if (extraArguments[0].equalsIgnoreCase("cl")||extraArguments[0].equalsIgnoreCase("chunklist")) {
+				} else if (extraArguments[0].equalsIgnoreCase("cl")
+						|| extraArguments[0].equalsIgnoreCase("chunklist")) {
 					String playerFaction = plugin.getSecondConfig().getConfigurationSection("Citizens")
 							.getString(sender.getName());
 					List<String> chunkList = plugin.chunkSavesFile.getConfigurationSection(playerFaction)
@@ -1015,18 +1012,17 @@ public class CommandExec implements CommandExecutor {
 						player.sendMessage(s);
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					return true;
-				} else if (extraArguments[0].equalsIgnoreCase("cc")
-						||extraArguments[0].equalsIgnoreCase("this")
-						||extraArguments[0].equalsIgnoreCase("checkchunk")) {
+				} else if (extraArguments[0].equalsIgnoreCase("cc") || extraArguments[0].equalsIgnoreCase("this")
+						|| extraArguments[0].equalsIgnoreCase("checkchunk")) {
 					int playerChunkX = player.getLocation().getChunk().getX();
 					int playerChunkZ = player.getLocation().getChunk().getZ();
 					player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " You are standing on chunk " + playerChunkX
 							+ " " + playerChunkZ);
-					player.sendMessage(StringConstants.MESSAGE_PREFIX_INFO +
-							"Is chunk claimed:"+ detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ));
-					
+					player.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + "Is chunk claimed:"
+							+ detectWhetherChunkIsClaimed(playerChunkX, playerChunkZ));
+
 					return true;
-				} else if (extraArguments[0].equalsIgnoreCase("help")||extraArguments[0].equalsIgnoreCase("help1")) {
+				} else if (extraArguments[0].equalsIgnoreCase("help") || extraArguments[0].equalsIgnoreCase("help1")) {
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
 					player.sendMessage(ChatColor.GOLD + "cc: Short for check chunk. Usage: /gda cc");
 					player.sendMessage(ChatColor.GOLD + "cl: Short for claim list. Usage: /gda cl");
@@ -1112,12 +1108,12 @@ public class CommandExec implements CommandExecutor {
 								StringConstants.MESSAGE_PREFIX_ERROR + "You are not a citizen of any country!");
 						return true;
 					}
-				}//changelog
-				else if(extraArguments[0].equalsIgnoreCase("changelog")){
+				} // changelog
+				else if (extraArguments[0].equalsIgnoreCase("changelog")) {
 					// give the sender a physical book that contains a changelog
 					return getChangeLogBook(sender);
 				}
-				
+
 				else if (extraArguments[0].equalsIgnoreCase("help2")) {
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GOLDE);
 					player.sendMessage(ChatColor.GREEN
@@ -1127,17 +1123,17 @@ public class CommandExec implements CommandExecutor {
 					player.sendMessage(ChatColor.GREEN + "Use /gda setvisa (player) to set a player's visa");
 					player.sendMessage(ChatColor.GREEN + "Use /gda stats (nation) to see a nation's stats");
 					player.sendMessage(ChatColor.GREEN + "Use /gda visastats (nation) to see a nation's visa holders.");
-					player.sendMessage(ChatColor.GREEN + "Use /gda kick (member-name) to remove a member from the faction.");
+					player.sendMessage(
+							ChatColor.GREEN + "Use /gda kick (member-name) to remove a member from the faction.");
 					player.sendMessage("");
-					
-					
-					
+
 					player.sendMessage(StringConstants.MESSAGE_GENERIC_LINE_GREEN);
 					return true;
-				} else if(extraArguments[0].equalsIgnoreCase("visastats")||extraArguments[0].equalsIgnoreCase("vstats")){
-					
+				} else if (extraArguments[0].equalsIgnoreCase("visastats")
+						|| extraArguments[0].equalsIgnoreCase("vstats")) {
+
 					return showVisaCarriersForFaction(sender, player, extraArguments);
-					
+
 				} else if (extraArguments[0].equalsIgnoreCase("denyvisa")) {
 					deactivatePlayerVisa(player, extraArguments, sender);
 					return true;
@@ -1364,7 +1360,8 @@ public class CommandExec implements CommandExecutor {
 					}, (20 * 10L), 20 * 10); // 10 sec delay, 10800 (or 3 hours)
 												// secs cycle
 					return true;
-				} else if (extraArguments[0].equalsIgnoreCase("nations")||extraArguments[0].equalsIgnoreCase("list")) {
+				} else if (extraArguments[0].equalsIgnoreCase("nations")
+						|| extraArguments[0].equalsIgnoreCase("list")) {
 					List<String> factionList = plugin.getSecondConfig().getStringList("FactionList");
 					if (factionList.size() < 20) {
 						player.sendMessage(StringConstants.MESSAGE_PREFIX_OK + " Nation list");
@@ -1531,19 +1528,18 @@ public class CommandExec implements CommandExecutor {
 						sender.sendMessage(StringConstants.MESSAGE_PREFIX_INFO + i);
 					}
 					return true;
-					
-				}
-				else if (extraArguments[0].equalsIgnoreCase("sub")||extraArguments[0].equalsIgnoreCase("createsub"))  {
-					 
+
+				} else if (extraArguments[0].equalsIgnoreCase("sub")
+						|| extraArguments[0].equalsIgnoreCase("createsub")) {
+
 					/**
-					 * createSubfactionMeme 
+					 * createSubfactionMeme
 					 */
-					return createSubfaction(extraArguments[1].toString(), getPlayerFaction(player.getName()), sender );
-				}
-				else if (extraArguments[0].equalsIgnoreCase("ally")) {
-					
+					return createSubfaction(extraArguments[1].toString(), getPlayerFaction(player.getName()), sender);
+				} else if (extraArguments[0].equalsIgnoreCase("ally")) {
+
 					return setRelation(extraArguments[0], getPlayerFaction(player.getName()), extraArguments[1]);
-					
+
 				}
 			}
 		} else {
