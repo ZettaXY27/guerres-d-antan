@@ -5,11 +5,6 @@ authors: [ZettaX, Inivican]
 description: For Project Olympic
 depend: [Vault] 
 commands:
-   test:
-      description: Testing shit you little fuck.
-      usage: I mean, you're probably using it wrong you retarded asshole.
-      permission: gda.test
-      permission-message: boi what do u think you're doing
    gda:
       description: Main fucking command.
       usage: Oops! something went wrong... try /gda help :)
