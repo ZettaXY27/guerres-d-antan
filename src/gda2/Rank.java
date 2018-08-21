@@ -8,9 +8,8 @@ package gda2;
  * Describes possible ranks that may be held by faction members
  */
 public enum Rank {
+	SERF,
 	CITIZEN,
-	DIPLOMAT,
 	MAGISTRATE,
-	EXECUTIVE,
-	SENATOR
+	EXECUTIVE
 }

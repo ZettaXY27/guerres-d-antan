@@ -24,7 +24,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitTask;
-import org.kitteh.tag.AsyncPlayerReceiveNameTagEvent;
+//import org.kitteh.tag.AsyncPlayerReceiveNameTagEvent;
 
 
 /**
