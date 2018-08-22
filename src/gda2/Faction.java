@@ -46,6 +46,11 @@ public class Faction {
 		this.name = factionName;
 	}
 	
+	/**
+	 * Returns FALSE if the FileConfiguration does not contain the faction name.
+	 * @param factionName the faction name
+	 * @return
+	 */
 	public boolean nameIsTaken(String factionName) {
 		if(FileManagerRegistrar.factionStorageFileManager.getFileConfiguration().contains(factionName)) {
 			return true;
