@@ -1,6 +1,6 @@
 name: guerresD_Antan
 version: 0.1
-main: zetta.Main
+main: gda2.Main
 authors: [ZettaX, Inivican]
 description: For Project Olympic
 depend: [Vault] 

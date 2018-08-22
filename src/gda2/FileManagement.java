@@ -11,9 +11,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class FileManagement {
 
 	private Main mainClass;
-	private FileConfiguration fileConfig;// config
-	private File actualFile;// configuration file
 	private String name = "config.yml";
+	private File actualFile;// configuration file
+	private FileConfiguration fileConfig;// config
 
 	/**
 	 * Default constructor that creates the actual file with the default file
@@ -21,6 +21,7 @@ public class FileManagement {
 	 */
 	public FileManagement() {
 		this.actualFile = new File(this.mainClass.getDataFolder(), this.name);
+		this.fileConfig = YamlConfiguration.loadConfiguration(actualFile);
 	}
 
 	/**
@@ -48,6 +49,7 @@ public class FileManagement {
 		
 		//Creates the file!!!! YEAHHH!!! Not sure why it is necessary
 		this.actualFile = new File(this.mainClass.getDataFolder(), this.name);
+		this.fileConfig = YamlConfiguration.loadConfiguration(actualFile);
 		
 	}
 
@@ -60,6 +62,7 @@ public class FileManagement {
 	 */
 	public FileManagement(String name) {
 		this.actualFile = new File(mainClass.getDataFolder(), name);
+		this.fileConfig = YamlConfiguration.loadConfiguration(actualFile);
 	}
 
 	public FileConfiguration getFileConfiguration() {
