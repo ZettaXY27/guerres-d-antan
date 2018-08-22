@@ -18,7 +18,8 @@ public class FactionControlExecutor implements CommandExecutor{
 				if (extraArguments[0].equalsIgnoreCase("create")) {
 					String name = extraArguments[1];
 					sender.sendMessage("you created: " + name);
-					FileManagerRegistrar.factionStorageFileManager.reloadConfigFile();
+					FileManagerRegistrar.factionStorageFileManager.getFileConfiguration().createSection(name);
+					FileManagerRegistrar.factionStorageFileManager.saveConfigFile();
 					return true;
 				}
 				return true;

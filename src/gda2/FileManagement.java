@@ -47,10 +47,6 @@ public class FileManagement {
 		this.mainClass = mainClass;
 		this.name = name;
 		
-		//Creates the file!!!! YEAHHH!!! Not sure why it is necessary
-		this.actualFile = new File(this.mainClass.getDataFolder(), this.name);
-		this.fileConfig = YamlConfiguration.loadConfiguration(actualFile);
-		
 	}
 
 	/**
@@ -91,6 +87,35 @@ public class FileManagement {
 			actualFile = new File(mainClass.getDataFolder(), name);
 		}
 		fileConfig = YamlConfiguration.loadConfiguration(actualFile);
+	}
+	
+	// Creates the file, using the object's name parameter
+	public void createConfigFile() {
+		if (actualFile == null) {
+			actualFile = new File(mainClass.getDataFolder(), name);
+		}
+		fileConfig = YamlConfiguration.loadConfiguration(actualFile);
+	}
+	
+	// Creates the file, using a file, a fileConfiguration and a name parameter provided by the caller
+	public void createConfigFile(File file, FileConfiguration fileConfiguration, String name) {
+		
+			file = new File(mainClass.getDataFolder(), name);
+			fileConfiguration = YamlConfiguration.loadConfiguration(file);
+			
+		
+	}
+	
+	public void setFile(File file) {
+		
+		this.actualFile = file;
+		
+	}
+	
+	public void setFileConfiguration(FileConfiguration fileConfiguration) {
+		
+		this.fileConfig = fileConfiguration;
+		
 	}
 
 }

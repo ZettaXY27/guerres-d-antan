@@ -1,7 +1,11 @@
 package gda2;
 
+import java.io.File;
+
 public class FileManagerRegistrar {
 	
-	public static FileManagement factionStorageFileManager = new FileManagement("factionStorage.yml");
-
+	static Main mainClass;
+    static FileManagement factionStorageFileManager;
+    static FileManagement chunkStorageFileManager;
+   
 }
