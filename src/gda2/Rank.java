@@ -11,5 +11,5 @@ public enum Rank {
 	SERF,
 	CITIZEN,
 	MAGISTRATE,
-	EXECUTIVE
+	LEADER//Executive is no longer used
 }

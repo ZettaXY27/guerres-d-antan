@@ -11,6 +11,8 @@ public final class StringConstants {
 	public static String MESSAGE_GENERIC_LINE_GREEN = ChatColor.GREEN + "====================================================" + ChatColor.GREEN;
 	public static String MESSAGE_GENERIC_LINE_GOLDE = ChatColor.GOLD + "=====================================================" + ChatColor.GOLD;
 	public static String MESSAGE_ERROR_NOT_ENOUGH_ARGUMENTS = MESSAGE_PREFIX_ERROR + "Not enough arguments.";
+	public static String MESSAGE_ERROR_FACTION_NAME_TAKEN = MESSAGE_PREFIX_ERROR + "Faction name is taken.";
+
 	public static String MESSAGE_ERROR_TOO_LONG = MESSAGE_PREFIX_ERROR + "Name is too long. Cannot be greater than maximum amount of characters.";
 	public static String LOGBOOK_PAGE01 = ChatColor.BLACK+"In version 1.0 there are the following commands\nclaim\nstats\nunclaim\ncreate\ninvite\njoin\ncl\ncc\nhelp1\nleave";
 	public static String LOGBOOK_PAGE02 = ChatColor.BLACK+"help2\nvisastats\ndenyvisa\nsetvisa\noverclaim\nofficial\nkick\nfirstRun\nnations";

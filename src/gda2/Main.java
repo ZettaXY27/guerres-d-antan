@@ -33,7 +33,13 @@ public class Main extends JavaPlugin {
 		FileManagerRegistrar.factionStorageFileManager = new FileManagement(new File(this.getDataFolder(), "factionStorage.yml"), "factionStorage.yml");
 		FileManagerRegistrar.factionStorageFileManager.createConfigFile();
 		FileManagerRegistrar.factionStorageFileManager.saveConfigFile();
-	
+		
+		FileManagerRegistrar.chunkStorageFileManager = new FileManagement(new File(this.getDataFolder(), "chunkStorage.yml"), "chunkStorage.yml");
+		FileManagerRegistrar.chunkStorageFileManager.createConfigFile();
+		FileManagerRegistrar.chunkStorageFileManager.saveConfigFile();
+		
+		
+		
 		commandList.put("gda", new FactionControlExecutor());
 		
 		//Command Registering

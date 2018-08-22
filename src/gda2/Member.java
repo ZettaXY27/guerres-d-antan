@@ -23,17 +23,6 @@ public class Member {
 	}
 	
 	/**
-	 * Instantiates member
-	 * @deprecated Use Member(UUID,Rank)
-	 * @param name
-	 * @param rank
-	 */
-	public Member(String name, Rank rank) {
-		this.name = name;
-		this.rank = rank;
-	}
-	
-	/**
 	 * Instantiates Member
 	 * @param uuid
 	 * @param rank
