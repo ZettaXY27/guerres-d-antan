@@ -1,6 +1,7 @@
 package gda2;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class Faction {
 	private String name = "";
@@ -24,22 +25,15 @@ public class Faction {
 		
 	}
 	
-	/**
-	 * Creates the faction
-	 * @param factionName the name of the faction
-	 * @param userName the user's name of the player that created the faction.
-	 */
-	public Faction(String factionName, String userName) {
-		this.memberList = new ArrayList<Member>();
-		addMemberToMemberList(userName, Rank.EXECUTIVE);
+	public Faction(String factionName, UUID uuid) {
+		if(this.memberList == null) {
+			this.memberList = new ArrayList<Member>();
+		}
+		this.memberList.add(new Member(uuid, Rank.EXECUTIVE));
 	}
 	
-	public void addMemberToMemberList(String userName) {
-		this.memberList.add(new Member(userName, Rank.CITIZEN));
-	}
-	
-	public void addMemberToMemberList(String userName, Rank rank) {
-		this.memberList.add(new Member(userName, rank));
+	public void addMemberToMemberList(UUID uuid, Rank rank) {
+		this.memberList.add(new Member(uuid,rank));
 	}
 	
 	/**
