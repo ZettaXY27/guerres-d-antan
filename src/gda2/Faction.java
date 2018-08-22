@@ -33,12 +33,6 @@ public class Faction {
 	 * @param uuid the UUID of the creator of the faction
 	 */
 	public Faction(String factionName, UUID uuid) {
-		//If the name is taken, get outta here
-		if(nameIsTaken(factionName)){
-			mainClass.getServer().broadcastMessage(StringConstants.MESSAGE_ERROR_FACTION_NAME_TAKEN);
-			return;
-		}
-		
 		if(this.memberList == null) {
 			this.memberList = new ArrayList<Member>();
 		}
@@ -46,17 +40,7 @@ public class Faction {
 		this.name = factionName;
 	}
 	
-	/**
-	 * Returns FALSE if the FileConfiguration does not contain the faction name.
-	 * @param factionName the faction name
-	 * @return
-	 */
-	public boolean nameIsTaken(String factionName) {
-		if(FileManagerRegistrar.factionStorageFileManager.getFileConfiguration().contains(factionName)) {
-			return true;
-		}
-		return false;
-	}
+	
 	
 	
 	public void addMemberToMemberList(UUID uuid, Rank rank) {

@@ -21,8 +21,8 @@ public class FactionControlExecutor implements CommandExecutor {
 			} else {
 				if (extraArguments[0].equalsIgnoreCase("create")) {
 					String name = extraArguments[1];
-					createFaction(name, sender, uuid);//actually creates faction
-					return true;
+					//attempts to create the faction, returns false if failed
+					return createFaction(name, sender, uuid);
 				}
 				return true;
 			}
@@ -37,7 +37,12 @@ public class FactionControlExecutor implements CommandExecutor {
 	 * @param sender the sender of the command
 	 * @param uuid the UUID of the player who sent the command
 	 */
-	private void createFaction(String name, CommandSender sender, UUID uuid) {
+	private boolean createFaction(String name, CommandSender sender, UUID uuid) {
+		//Make sure the name is not taken already
+		if(nameIsTaken(name)) {
+			return false;
+		}
+		
 		Faction createdFaction = new Faction(name, uuid);
 		sender.sendMessage("you created: " + name);
 		FileManagerRegistrar.factionStorageFileManager.getFileConfiguration()
@@ -48,6 +53,18 @@ public class FactionControlExecutor implements CommandExecutor {
 				.getConfigurationSection(createdFaction.getFactionName())
 				.set("Leaders", createdFaction.getMembersByRank(Rank.LEADER));
 		FileManagerRegistrar.factionStorageFileManager.saveConfigFile();
+		return true;
 	}
 
+	/**
+	 * Returns FALSE if the FileConfiguration does not contain the faction name.
+	 * @param factionName the faction name
+	 * @return
+	 */
+	private boolean nameIsTaken(String factionName) {
+		if(FileManagerRegistrar.factionStorageFileManager.getFileConfiguration().contains(factionName)) {
+			return true;
+		}
+		return false;
+	}
 }
