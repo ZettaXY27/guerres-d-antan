@@ -30,6 +30,7 @@ public class Faction {
 			this.memberList = new ArrayList<Member>();
 		}
 		this.memberList.add(new Member(uuid, Rank.EXECUTIVE));
+		this.name = factionName;
 	}
 	
 	public void addMemberToMemberList(UUID uuid, Rank rank) {
@@ -43,5 +44,13 @@ public class Faction {
 	 */
 	public void addMembersToList(ArrayList<Member> memberList) {
 		this.memberList.addAll(memberList);
+	}
+	
+	public String getFactionName() {
+		return this.name;
+	}
+	
+	public ArrayList<Member> getMemberList() {
+		return this.memberList;
 	}
 }
