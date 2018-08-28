@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class Faction {
+	// the name of the faction
 	private String name = "";
+	private String description = "";
 	//private ArrayList<Member> memberArray;
 	
 	
@@ -92,5 +94,21 @@ public class Faction {
 			}
 		}
 		return membersOfSpecificTitle;
+	}
+	
+	/**
+	 * Retrieves the description of the faction
+	 * @return
+	 */
+	public String getDescription() {
+		return this.description;
+	}
+	
+	/**
+	 * Sets the description of the faction
+	 * @param description the description of the faction
+	 */
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

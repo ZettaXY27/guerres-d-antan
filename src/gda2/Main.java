@@ -28,7 +28,7 @@ public class Main extends JavaPlugin {
 		
 		//Command Executor List, used to register commands, use put(name, CommandExec)
 		HashMap<String, CommandExecutor> commandList = new HashMap<String, CommandExecutor>();
-
+		
 		//File creation
 		FileManagerRegistrar.factionStorageFileManager = new FileManagement(new File(this.getDataFolder(), "factionStorage.yml"), "factionStorage.yml");
 		FileManagerRegistrar.factionStorageFileManager.createConfigFile();
