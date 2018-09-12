@@ -9,6 +9,9 @@ public class Faction {
 	private String description = "";
 	//private ArrayList<Member> memberArray;
 	
+	// The default rank in the faction
+	private Rank defaultRank = Rank.CITIZEN;
+	
 	
 	/*
 	 * Alternatively implement diplomacy in the form of 
@@ -18,6 +21,8 @@ public class Faction {
 	private ArrayList<Faction> listOfAllies;
 	
 	private ArrayList<Member> memberList;
+	//List of individuals who are NOT members but have visas in the faction
+	private ArrayList<Member> visaList;
 	
 	private Main mainClass;
 	
@@ -38,15 +43,43 @@ public class Faction {
 		if(this.memberList == null) {
 			this.memberList = new ArrayList<Member>();
 		}
+		
 		this.memberList.add(new Member(uuid, Rank.LEADER));
+		
 		this.name = factionName;
 	}
 	
+	/**
+	 * Sets the default rank within the faction
+	 * @param defaultRank the desired default rank within the faction
+	 */
+	public void setDefaultRank(Rank defaultRank) {
+		this.defaultRank = defaultRank;
+	}
 	
+	/**
+	 * Gets the default rank within the faction
+	 * @return Rank enumerated representative of the default rank in the faction
+	 */
+	public Rank getDefaultRank() {
+		return this.defaultRank;
+	}
 	
-	
+	/**
+	 * Adds a new member to the faction
+	 * @param uuid unique user id
+	 * @param rank Enumerated Rank
+	 */
 	public void addMemberToMemberList(UUID uuid, Rank rank) {
 		this.memberList.add(new Member(uuid,rank));
+	}
+	
+	/**
+	 * Adds a new member to the member list and sets rank as default
+	 * @param uuid
+	 */
+	public void addMemberToMemberList(UUID uuid) {
+		this.memberList.add(new Member(uuid,this.defaultRank));
 	}
 	
 	/**

@@ -12,8 +12,7 @@ import java.util.UUID;
  * and ranking within the faction.
  */
 public class Member {
-	//string name of the given player
-	private String name = "";
+
 	private UUID uuid;
 	private Rank rank;
 	private String aestheticTitle = "";
@@ -52,6 +51,21 @@ public class Member {
 		this.rank = rank;
 	}
 	
+	/**
+	 * get player UUID
+	 * @return player UUID
+	 */
+	public UUID getUUID() {
+		return this.uuid;
+	}
+	
+	/**
+	 * Sets the UUID of the member
+	 * @param uuid the unique user ID
+	 */
+	public void setUUID(UUID uuid) {
+		this.uuid = uuid;
+	}
 	
 	/**
 	 * gets the rank of the member

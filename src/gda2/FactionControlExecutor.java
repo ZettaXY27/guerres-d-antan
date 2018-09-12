@@ -42,10 +42,15 @@ public class FactionControlExecutor implements CommandExecutor {
 	}
 
 	
-	
+	/**
+	 * 
+	 * @param uuid unique user id of the player
+	 * @return whether the player is in the faction
+	 */
 	private boolean isPlayerInAFaction(UUID uuid) {
 		boolean isInFaction = FileManagerRegistrar.factionStorageFileManager.getFileConfiguration()
 				.getConfigurationSection("Members").contains(uuid.toString());
+		
 		return isInFaction;
 	}
 
@@ -95,11 +100,41 @@ public class FactionControlExecutor implements CommandExecutor {
 		// upon faction creation
 		FileManagerRegistrar.factionStorageFileManager.getFileConfiguration()
 				.getConfigurationSection(createdFaction.getFactionName())
-				.set("Leaders", createdFaction.getMembersByRank(Rank.LEADER));
+				.set("Members", createdFaction.getMembersByRank(Rank.LEADER));
 		FileManagerRegistrar.factionStorageFileManager.saveConfigFile();
+		
+		// Add to player storage
+		addToPlayerStorage(new Member(uuid, Rank.LEADER));
+		
 		return true;
 	}
 
+	
+	
+	private Member getPlayerFromStorage(UUID uuid) {
+		//String aestheticTitle = FileManagerRegistrar.play.getFileConfiguration()
+		//		.getConfigurationSection("Members").getString(uuid.toString());
+		String aestheticTitle = FileManagerRegistrar.playerStorageFileManager
+				.getFileConfiguration().getString(uuid.toString());
+
+		return null; 
+		//return playerFaction;
+	}
+	
+
+	private void addToPlayerStorage(Member member) {
+		//Create section with the unique user iD
+		FileManagerRegistrar.playerStorageFileManager.getFileConfiguration().createSection(member.getUUID().toString());
+		//Sets Rank value
+		FileManagerRegistrar.playerStorageFileManager.getFileConfiguration()
+		.getConfigurationSection(member.getUUID().toString()).set("Rank:", member.getRank());
+		//Sets value for AestheticTitle
+		FileManagerRegistrar.playerStorageFileManager.getFileConfiguration()
+		.getConfigurationSection(member.getUUID().toString()).set("AestheticTitle:",member.getAestheticTitle());
+		//Save
+		FileManagerRegistrar.playerStorageFileManager.saveConfigFile();
+	}
+	
 	/**
 	 * Makes sure the description is valid and then sets the faction description
 	 * @param description the faction description
