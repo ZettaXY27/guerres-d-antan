@@ -122,6 +122,10 @@ public class FactionControlExecutor implements CommandExecutor {
 	}
 	
 
+	/**
+	 * Adds the given member of type Member to the player storage file
+	 * @param member everything about a given player that GDA cares about will go into here
+	 */
 	private void addToPlayerStorage(Member member) {
 		//Create section with the unique user iD
 		FileManagerRegistrar.playerStorageFileManager.getFileConfiguration().createSection(member.getUUID().toString());

@@ -21,7 +21,7 @@ public class StringHelper {
 	 * @param isGoingToBeUpperCased Uppercases them or not
 	 * @return
 	 */
-	public static String[] caseifyAll(String[] array, boolean isGoingToBeUpperCased) {
+	public static String[] caseifyAllInToUpper(String[] array, boolean isGoingToBeUpperCased) {
 		
 		for(int i = 0; i < array.length; i++) {
 			if(isGoingToBeUpperCased == true) {
