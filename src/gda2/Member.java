@@ -13,6 +13,11 @@ import java.util.UUID;
  */
 public class Member {
 
+	@Override
+	public String toString() {
+		return "Member [uuid=" + uuid + ", rank=" + rank + ", aestheticTitle=" + aestheticTitle + "]";
+	}
+
 	private UUID uuid;
 	private Rank rank;
 	private String aestheticTitle = "";
