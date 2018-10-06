@@ -29,11 +29,19 @@ public class FactionControlExecutor implements CommandExecutor {
 				}
 				if (extraArguments[0].equalsIgnoreCase("desc")) {
 					String desc = extraArguments[1];
-					if(isPlayerInAFaction(uuid)==false) {
+					if (!isPlayerInAFaction(uuid)) {
+
 						return false;
-					} else
-					return true;// setDescription(desc, faction)
+					} else {
+						// setDescription(desc,faction);
+						return true;// setDescription(desc, faction)
+					}
 				}
+				if (extraArguments[0].equalsIgnoreCase("me")) {
+					sender.sendMessage("Your faction: " + getPlayerFactionName(uuid));
+					return true;
+				}
+
 				return true;
 			}
 		}
@@ -41,7 +49,10 @@ public class FactionControlExecutor implements CommandExecutor {
 
 	}
 
-	
+	private Faction getPlayerFaction(String factionName) {
+		return new Faction();
+	}
+
 	/**
 	 * 
 	 * @param uuid unique user id of the player
@@ -50,7 +61,7 @@ public class FactionControlExecutor implements CommandExecutor {
 	private boolean isPlayerInAFaction(UUID uuid) {
 		boolean isInFaction = FileManagerRegistrar.factionStorageFileManager.getFileConfiguration()
 				.getConfigurationSection("Members").contains(uuid.toString());
-		
+
 		return isInFaction;
 	}
 
@@ -60,31 +71,28 @@ public class FactionControlExecutor implements CommandExecutor {
 	 * @return the name of the faction
 	 */
 	private String getPlayerFactionName(UUID uuid) {
-
-		String playerFaction = FileManagerRegistrar.factionStorageFileManager.getFileConfiguration()
+		String playerFaction = "";
+		playerFaction = FileManagerRegistrar.factionStorageFileManager.getFileConfiguration()
 				.getConfigurationSection("Members").getString(uuid.toString());
 		return playerFaction;
 	}
-	
+
 	/**
 	 * 
 	 * @param uuid
 	 * @return
 	 */
 	private boolean isPlayerALeader(UUID uuid) {
-		return FileManagerRegistrar.factionStorageFileManager.
-				getFileConfiguration().getConfigurationSection("Leaders").contains(uuid.toString());
+		return FileManagerRegistrar.factionStorageFileManager.getFileConfiguration().getConfigurationSection("Leaders")
+				.contains(uuid.toString());
 	}
 
 	/**
 	 * Creates the faction
 	 * 
-	 * @param name
-	 *            faction name
-	 * @param sender
-	 *            the sender of the command
-	 * @param uuid
-	 *            the UUID of the player who sent the command
+	 * @param name   faction name
+	 * @param sender the sender of the command
+	 * @param uuid   the UUID of the player who sent the command
 	 */
 	private boolean createFaction(String name, CommandSender sender, UUID uuid) {
 		// Make sure the name is not taken already
@@ -102,47 +110,49 @@ public class FactionControlExecutor implements CommandExecutor {
 				.getConfigurationSection(createdFaction.getFactionName())
 				.set("Members", createdFaction.getMembersByRank(Rank.LEADER));
 		FileManagerRegistrar.factionStorageFileManager.saveConfigFile();
-		
+
 		// Add to player storage
 		addToPlayerStorage(new Member(uuid, Rank.LEADER));
-		
+
 		return true;
 	}
 
-	
-	
 	private Member getPlayerFromStorage(UUID uuid) {
-		//String aestheticTitle = FileManagerRegistrar.play.getFileConfiguration()
-		//		.getConfigurationSection("Members").getString(uuid.toString());
-		String aestheticTitle = FileManagerRegistrar.playerStorageFileManager
-				.getFileConfiguration().getString(uuid.toString());
+		// String aestheticTitle = FileManagerRegistrar.play.getFileConfiguration()
+		// .getConfigurationSection("Members").getString(uuid.toString());
+		String aestheticTitle = FileManagerRegistrar.playerStorageFileManager.getFileConfiguration()
+				.getString(uuid.toString());
 
-		return null; 
-		//return playerFaction;
+		return null;
+		// return playerFaction;
 	}
-	
 
 	/**
 	 * Adds the given member of type Member to the player storage file
-	 * @param member everything about a given player that GDA cares about will go into here
+	 * 
+	 * @param member everything about a given player that GDA cares about will go
+	 *               into here
 	 */
 	private void addToPlayerStorage(Member member) {
-		//Create section with the unique user iD
-		FileManagerRegistrar.playerStorageFileManager.getFileConfiguration().createSection(member.getUUID().toString());
-		//Sets Rank value
+		// Create section with the unique user iD
+		FileManagerRegistrar.playerStorageFileManager.getFileConfiguration().
+				createSection(member.getUUID().toString());
+		// Sets Rank value
 		FileManagerRegistrar.playerStorageFileManager.getFileConfiguration()
-		.getConfigurationSection(member.getUUID().toString()).set("Rank:", member.getRank());
-		//Sets value for AestheticTitle
+				.getConfigurationSection(member.getUUID().toString()).set("Rank:", member.getRank().toString());
+		// Sets value for AestheticTitle
 		FileManagerRegistrar.playerStorageFileManager.getFileConfiguration()
-		.getConfigurationSection(member.getUUID().toString()).set("AestheticTitle:",member.getAestheticTitle());
-		//Save
+				.getConfigurationSection(member.getUUID().toString())
+				.set("AestheticTitle:", member.getAestheticTitle());
+		// Save
 		FileManagerRegistrar.playerStorageFileManager.saveConfigFile();
 	}
-	
+
 	/**
 	 * Makes sure the description is valid and then sets the faction description
+	 * 
 	 * @param description the faction description
-	 * @param faction object representing the faction
+	 * @param faction     object representing the faction
 	 * @return whether the command successfully completed
 	 */
 	private boolean setDescription(String description, Faction faction) {
@@ -150,7 +160,7 @@ public class FactionControlExecutor implements CommandExecutor {
 		if (StringHelper.isStringValid(description) == false) {
 			return false;
 		}
-		
+
 		faction.setDescription(description);
 
 		// Set the description in the file
@@ -165,8 +175,7 @@ public class FactionControlExecutor implements CommandExecutor {
 	/**
 	 * Returns FALSE if the FileConfiguration does not contain the faction name.
 	 * 
-	 * @param factionName
-	 *            the faction name
+	 * @param factionName the faction name
 	 * @return
 	 */
 	private boolean nameIsTaken(String factionName) {

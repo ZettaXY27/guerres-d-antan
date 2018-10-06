@@ -30,15 +30,24 @@ public class Main extends JavaPlugin {
 		HashMap<String, CommandExecutor> commandList = new HashMap<String, CommandExecutor>();
 		
 		//File creation
-		FileManagerRegistrar.factionStorageFileManager = new FileManagement(new File(this.getDataFolder(), "factionStorage.yml"), "factionStorage.yml");
+		FileManagerRegistrar.factionStorageFileManager = new FileManagement(new File(this.getDataFolder(),
+				"factionStorage.yml"), "factionStorage.yml");
 		FileManagerRegistrar.factionStorageFileManager.createConfigFile();
 		FileManagerRegistrar.factionStorageFileManager.saveConfigFile();
 		
-		FileManagerRegistrar.chunkStorageFileManager = new FileManagement(new File(this.getDataFolder(), "chunkStorage.yml"), "chunkStorage.yml");
+		FileManagerRegistrar.chunkStorageFileManager = new FileManagement(new File(this.getDataFolder(),
+				"chunkStorage.yml"),
+				"chunkStorage.yml");
 		FileManagerRegistrar.chunkStorageFileManager.createConfigFile();
 		FileManagerRegistrar.chunkStorageFileManager.saveConfigFile();
 		
-		
+		//Create Player Storage File
+		FileManagerRegistrar.playerStorageFileManager = 
+				new FileManagement(new File(this.getDataFolder(),
+						"playerStorage.yml"),
+						"playerStorage.yml");
+		FileManagerRegistrar.playerStorageFileManager.createConfigFile();
+		FileManagerRegistrar.chunkStorageFileManager.saveConfigFile();
 		
 		commandList.put("gda", new FactionControlExecutor());
 		
