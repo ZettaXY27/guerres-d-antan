@@ -1,4 +1,4 @@
-AUTHORS
+# AUTHORS
 
-ZettaXY27 (Samuel Inciarte)
-sherendeen (Seth G. R. Herendeen)
+ZettaXY27
+sherendeen (AKA Inivican, AKA Seth G. R. Herendeen)
