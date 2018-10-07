@@ -30,15 +30,19 @@ public class FactionControlExecutor implements CommandExecutor {
 				if (extraArguments[0].equalsIgnoreCase("desc")) {
 					String desc = extraArguments[1];
 					if (!isPlayerInAFaction(uuid)) {
-
+						
 						return false;
 					} else {
 						// setDescription(desc,faction);
+				//		setDescription(desc, )
 						return true;// setDescription(desc, faction)
 					}
 				}
 				if (extraArguments[0].equalsIgnoreCase("me")) {
-					sender.sendMessage("Your faction: " + getPlayerFactionName(uuid));
+				//	sender.sendMessage("Your faction: " + getPlayerFactionName(uuid));
+				//	sender.sendMessage("");
+					sender.sendMessage("Attempt two: " + getPlayerFaction(uuid));
+					sender.sendMessage("Am I in a faction? " + isPlayerInAFaction(uuid));
 					return true;
 				}
 
@@ -49,8 +53,21 @@ public class FactionControlExecutor implements CommandExecutor {
 
 	}
 
-	private Faction getPlayerFaction(String factionName) {
-		return new Faction();
+	/**
+	 * This method creates a temporary object representing a faction from
+	 * save data.
+	 * @param uuid
+	 * @return
+	 */
+	private Faction getPlayerFactionObject(UUID uuid) {
+		Faction fac = new Faction();
+		
+		return fac;
+	}
+	
+	private String getPlayerFaction(UUID uuid) {
+		String playerFaction = FileManagerRegistrar.factionStorageFileManager.getFileConfiguration().getName();
+		return playerFaction;
 	}
 
 	/**

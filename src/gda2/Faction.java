@@ -18,15 +18,19 @@ public class Faction {
 	 * hashsets or w/e
 	 */
 	private ArrayList<Faction> listOfEnemies;
+	
 	private ArrayList<Faction> listOfAllies;
 	
+	/** @deprecated */
 	private ArrayList<Member> memberList;
-	//List of individuals who are NOT members but have visas in the faction
+	/** @deprecated List of individuals who are NOT members but have visas in the faction */
 	private ArrayList<Member> visaList;
 	
 	private Main mainClass;
 	
-	
+	/** Proper member list of type UUID. Convert to string when saving */
+	private ArrayList<UUID> peopleWhoAreMembersList;
+	private ArrayList<UUID> peopleWithVisasList;
 	/**
 	 * Default constructor that actually does nothing
 	 */
@@ -38,6 +42,7 @@ public class Faction {
 	 * Creates a faction of the specified name and then 
 	 * @param factionName the name of the faction as a string
 	 * @param uuid the UUID of the creator of the faction
+	 * 
 	 */
 	public Faction(String factionName, UUID uuid) {
 		if(this.memberList == null) {
@@ -48,6 +53,8 @@ public class Faction {
 		
 		this.name = factionName;
 	}
+	
+	
 	
 	/**
 	 * Sets the default rank within the faction
