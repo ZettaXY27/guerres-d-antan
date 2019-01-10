@@ -14,6 +14,9 @@ import java.util.UUID;
 public class Member {
 
 	@Override
+	/**
+	 * Returns formatted string containing information about a given MEMBER
+	 */
 	public String toString() {
 		return "Member [uuid=" + uuid + ", rank=" + rank + ", aestheticTitle=" + aestheticTitle + "]";
 	}
@@ -31,7 +34,7 @@ public class Member {
 	 * @param uuid
 	 * @param rank
 	 */
-	public Member(UUID uuid, Rank rank) {
+	public Member(UUID uuid, Rank rank) {//
 		this.uuid = uuid;
 		this.rank = rank;
 	}

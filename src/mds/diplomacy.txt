@@ -1,0 +1,23 @@
+{If we have an object that manages all diplomacy for a given faction, it'll be easier to manage}
+=Diplomacy=
+
+- relation {enemy,ally,vassal,neutral} : enum
+
+-enemies:ArrayList<Faction>
+-allies:ArrayList<Faction>
+-vassals:ArrayList<Faction>
+-neutral:ArrayList<Faction>
+
++Diplomacy()
+
++getEnemies():ArrayList<Faction>
++getAllies():ArrayList<Faction>
++getVassals():ArrayList<Faction>
++getNeutral():ArrayList<Faction>
+
++getEnemyAtIndex(int):Faction
++getAllyAtIndex(int):Faction
++getVassalAtIndex(int):Faction
++getNeutralAtIndex(int):Faction
+
++removeFactionAtIndex(relation,int):void

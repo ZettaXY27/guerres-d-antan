@@ -26,11 +26,13 @@ public class Faction {
 	/** @deprecated List of individuals who are NOT members but have visas in the faction */
 	private ArrayList<Member> visaList;
 	
+	/**Instance variable holding the reference to the main class*/
 	private Main mainClass;
 	
 	/** Proper member list of type UUID. Convert to string when saving */
 	private ArrayList<UUID> peopleWhoAreMembersList;
 	private ArrayList<UUID> peopleWithVisasList;
+	
 	/**
 	 * Default constructor that actually does nothing
 	 */

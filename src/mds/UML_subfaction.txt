@@ -1,0 +1,12 @@
+{If subfaction is to be a separate class from faction, here is my advisement}
+=Subfaction=
+
+-chunks:Chunk[]
+-name:String
+-description:String
+
++Subfaction(String)
+
++addChunk(Chunk):void
++removeChunk(Chunk):void
++getChunks():Chunk[]
